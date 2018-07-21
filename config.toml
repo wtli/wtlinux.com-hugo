@@ -3,7 +3,7 @@ title = "wtlinux"
 theme = "whiteplain"
 languageCode = "zh"
 # Disqus shortname
-disqusShortname = "wtlinux.disqus.com"
+disqusShortname = "wtlinux"
 # google analytics tracking id
 googleAnalytics = "Toracking ID"
 
