@@ -21,7 +21,7 @@ CentOS7：
 sudo subscription-manager repos --enable=rhel-7-server-extras-rpms  
 //安装并注册EPEL存储库
 sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm 
-//添加yum仓库文件
+// 来添加yum仓库文件
 cat << EOM > /etc/yum.repos.d/ceph.repo
 [ceph-noarch]
 name=Ceph noarch packages
