@@ -360,7 +360,7 @@ $ git submodule add git@github.com:<username>/<username>.github.io.git public
 
 ```
 
-8、添加.gitignore文件，里面写public/，在同步<your-project>-hugo时会忽略pulice文件夹。
+8、添加.gitignore文件，里面写public/，在同步\<your-project\>-hugo时会忽略publice文件夹。
 
 ```
 
