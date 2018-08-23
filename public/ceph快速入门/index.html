@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <title>Ceph快速入门 - wtlinux</title>
+  <meta property="og:title" content="Ceph快速入门 - wtlinux" />
+  <meta name="twitter:title" content="Ceph快速入门 - wtlinux" />
+  <meta name="description" content="安装ceph-deploy 预安装 Ceph-deploy设置  ceph-deploy工具在管理节点上的目录之外运行。任何具有网络连接和现代python环境和ssh（如Linux）的主机都应该可以工作  架构图如下：
+CentOS7：
+//注册秘钥 sudo subscription-manager repos --enable=rhel-7-server-extras-rpms //安装并注册EPEL存储库 sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm //添加yum仓库文件 cat &lt;&lt; EOM &gt; /etc/yum.repos.d/ceph.repo [ceph-noarch] name=Ceph noarch packages baseurl=https://download.ceph.com/rpm-{ceph-stable-release}/el7/noarch enabled=1 gpgcheck=1 type=rpm-md gpgkey=https://download.ceph.com/keys/release.asc EOM //更新仓库并安装ceph-deploy sudo yum update sudo yum install ceph-deploy  Ceph节点设置  管理节点必须具有对Ceph节点的无密码SSH访问。当ceph-deploy以用户身份登录到Ceph节点时，该特定用户必须具有无密码的sudo权限。  CentOS7：
+安装时间服务器  建议安装时间服务器，特别是Ceph Monitor节点，以免时间不一致导致问题  sudo yum install ntp ntpdate ntp-doc  安装SSH服务器  确保SSH服务器在所有Ceph节点上运行  sudo yum install openssh-server  创建Ceph部署用户  ceph-deploy实用程序必须以具有无密码sudo权限的用户身份登录到Ceph节点，因为它需要安装软件和配置文件而不提示输入密码。 最新版本的ceph-deploy支持&ndash;username选项，因此您可以指定任何具有无密码sudo的用户（包括root用户，但不建议这样做）。 我们建议在群集中的所有Ceph节点上为ceph-deploy创建特定用户。 请不要使用“ceph”作为用户名。  //在每个Ceph节点上创建一个新用户。 ssh user@ceph-server sudo useradd -d /home/{username} -m {username} sudo passwd {username} //对于添加到每个Ceph节点的新用户，请确保该用户具有sudo权限。 echo &quot;{username} ALL = (root) NOPASSWD:ALL&quot; | sudo tee /etc/sudoers.">
+  <meta property="og:description" content="安装ceph-deploy 预安装 Ceph-deploy设置  ceph-deploy工具在管理节点上的目录之外运行。任何具有网络连接和现代python环境和ssh（如Linux）的主机都应该可以工作  架构图如下：
+CentOS7：
+//注册秘钥 sudo subscription-manager repos --enable=rhel-7-server-extras-rpms //安装并注册EPEL存储库 sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm //添加yum仓库文件 cat &lt;&lt; EOM &gt; /etc/yum.repos.d/ceph.repo [ceph-noarch] name=Ceph noarch packages baseurl=https://download.ceph.com/rpm-{ceph-stable-release}/el7/noarch enabled=1 gpgcheck=1 type=rpm-md gpgkey=https://download.ceph.com/keys/release.asc EOM //更新仓库并安装ceph-deploy sudo yum update sudo yum install ceph-deploy  Ceph节点设置  管理节点必须具有对Ceph节点的无密码SSH访问。当ceph-deploy以用户身份登录到Ceph节点时，该特定用户必须具有无密码的sudo权限。  CentOS7：
+安装时间服务器  建议安装时间服务器，特别是Ceph Monitor节点，以免时间不一致导致问题  sudo yum install ntp ntpdate ntp-doc  安装SSH服务器  确保SSH服务器在所有Ceph节点上运行  sudo yum install openssh-server  创建Ceph部署用户  ceph-deploy实用程序必须以具有无密码sudo权限的用户身份登录到Ceph节点，因为它需要安装软件和配置文件而不提示输入密码。 最新版本的ceph-deploy支持&ndash;username选项，因此您可以指定任何具有无密码sudo的用户（包括root用户，但不建议这样做）。 我们建议在群集中的所有Ceph节点上为ceph-deploy创建特定用户。 请不要使用“ceph”作为用户名。  //在每个Ceph节点上创建一个新用户。 ssh user@ceph-server sudo useradd -d /home/{username} -m {username} sudo passwd {username} //对于添加到每个Ceph节点的新用户，请确保该用户具有sudo权限。 echo &quot;{username} ALL = (root) NOPASSWD:ALL&quot; | sudo tee /etc/sudoers.">
+  <meta name="twitter:description" content="安装ceph-deploy 预安装 Ceph-deploy设置  ceph-deploy工具在管理节点上的目录之外运行。任何具有网络连接和现代python环境和ssh（如Linux）的主机都应该可以工作  架构图如下：
+CentOS7：
+//注册秘钥 sudo subscription-manager repos --enable=rhel-7-server-extras-rpms //安装并注 …">
+  <meta name="author" content="wang tian"/>
+  <meta property="og:site_name" content="wtlinux" />
+  <meta property="og:url" content="http://www.wtlinux.com/ceph%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/" />
+  <meta property="og:type" content="article" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="generator" content="Hugo 0.41" />
+  <link rel="stylesheet" href="/css/style.css" media="all" />
+  <link rel="stylesheet" href="/css/syntax.css" media="all" />
+  <link rel="stylesheet" href="/css/custom.css" media="all" />
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script defer src="https://use.fontawesome.com/releases/v5.0.10/js/all.js" integrity="sha384-slN8GvtUJGnv6ca26v8EzVaR9DC58QEwsIk9q1QXdCU8Yu8ck/tL/5szYlBbqmS+" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+<header class="site-header">
+  <nav class="site-navi">
+    <h1 class="site-title"><a href="/">wtlinux</a></h1>
+    <ul class="site-navi-items">
+      <li class="site-navi-item-categories"><a href="/categories/" title="Categories">Categories</a></li>
+      <li class="site-navi-item-tags"><a href="/tags/" title="Tags">Tags</a></li>
+      <li class="site-navi-item-archives"><a href="/archives/" title="Archives">Archives</a></li>
+      <li class="site-navi-item-about"><a href="/about/" title="About">About</a></li>
+    </ul>
+  </nav>
+</header>
+<hr class="site-header-bottom">
+
+<script src="https://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+<link rel="stylesheet" href="https://yandex.st/highlightjs/8.0/styles/default.min.css">
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+  <div class="main" role="main">
+    <article class="article">
+      
+      
+      <h1 class="article-title">Ceph快速入门</h1>
+      
+      <hr class="article-title-bottom">
+      <ul class="article-meta">
+        <li class="article-meta-date"><time>August 23, 2018</time></li>
+      </ul>
+      
+<aside class="toc">
+  <nav id="TableOfContents">
+<ul>
+<li><a href="#安装ceph-deploy">安装ceph-deploy</a>
+<ul>
+<li><a href="#预安装">预安装</a>
+<ul>
+<li><a href="#ceph-deploy设置">Ceph-deploy设置</a></li>
+<li><a href="#ceph节点设置">Ceph节点设置</a>
+<ul>
+<li><a href="#安装时间服务器">安装时间服务器</a></li>
+<li><a href="#安装ssh服务器">安装SSH服务器</a></li>
+<li><a href="#创建ceph部署用户">创建Ceph部署用户</a></li>
+<li><a href="#启动无秘钥登陆">启动无秘钥登陆</a></li>
+<li><a href="#打开网络">打开网络</a></li>
+<li><a href="#确保连通性">确保连通性</a></li>
+<li><a href="#开放端口">开放端口</a></li>
+<li><a href="#关闭防火墙">关闭防火墙</a></li>
+<li><a href="#更精准配置防火墙">更精准配置防火墙</a></li>
+<li><a href="#tty">tty</a></li>
+<li><a href="#selinux">selinux</a></li>
+<li><a href="#依赖包">依赖包</a></li>
+</ul></li>
+<li><a href="#概要">概要</a></li>
+</ul></li>
+<li><a href="#存储集群">存储集群</a>
+<ul>
+<li><a href="#重置服务器">重置服务器</a></li>
+<li><a href="#创建一个集群">创建一个集群</a>
+<ul>
+<li><a href="#创建集群">创建集群</a></li>
+<li><a href="#配置网络">配置网络</a></li>
+<li><a href="#ipv6配置">IPv6配置</a></li>
+<li><a href="#安装ceph包">安装Ceph包</a></li>
+<li><a href="#部署初始监视器并收集密钥">部署初始监视器并收集密钥</a></li>
+<li><a href="#优化deploy节点">优化deploy节点</a></li>
+<li><a href="#部署管理节点">部署管理节点</a></li>
+<li><a href="#添加三个osd节点">添加三个OSD节点</a></li>
+<li><a href="#检查集群健康">检查集群健康</a></li>
+</ul></li>
+<li><a href="#集群扩展">集群扩展</a>
+<ul>
+<li><a href="#添加元数据服务器">添加元数据服务器</a></li>
+<li><a href="#添加监视器">添加监视器</a></li>
+<li><a href="#添加管理器">添加管理器</a></li>
+<li><a href="#添加rgw实例">添加RGW实例</a></li>
+</ul></li>
+<li><a href="#存储-检索对象数据">存储/检索对象数据</a>
+<ul>
+<li><a href="#练习找到一个对象">练习找到一个对象</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#ceph客户端">CEPH客户端</a>
+<ul>
+<li><a href="#块设备快速启动">块设备快速启动</a>
+<ul>
+<li><a href="#安装ceph">安装Ceph</a></li>
+<li><a href="#创建块设备pool">创建块设备pool</a></li>
+<li><a href="#配置块设备">配置块设备</a></li>
+</ul></li>
+<li><a href="#文件系统快速入门">文件系统快速入门</a>
+<ul>
+<li><a href="#先决条件">先决条件</a></li>
+<li><a href="#创建一个文件系统">创建一个文件系统</a></li>
+<li><a href="#创建一个秘密文件">创建一个秘密文件</a></li>
+<li><a href="#内核驱动程序">内核驱动程序</a></li>
+<li><a href="#用户空间的文件系统-fuse">用户空间的文件系统（FUSE）</a></li>
+<li><a href="#附加信息">附加信息</a></li>
+</ul></li>
+<li><a href="#对象存储快速入门">对象存储快速入门</a>
+<ul>
+<li><a href="#安装ceph对象网关">安装Ceph对象网关</a></li>
+<li><a href="#创建ceph对象网关实例">创建Ceph对象网关实例</a></li>
+<li><a href="#配置ceph对象网关实例">配置Ceph对象网关实例</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+</aside>
+      
+
+<h1 id="安装ceph-deploy">安装ceph-deploy</h1>
+
+<h2 id="预安装">预安装</h2>
+
+<h3 id="ceph-deploy设置">Ceph-deploy设置</h3>
+
+<ul>
+<li>ceph-deploy工具在管理节点上的目录之外运行。任何具有网络连接和现代python环境和ssh（如Linux）的主机都应该可以工作</li>
+</ul>
+
+<p>架构图如下：</p>
+
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwgy1fuggjt3mc6j30fc07tt90.jpg" alt="" /></p>
+
+<p>CentOS7：</p>
+
+<pre><code>//注册秘钥
+sudo subscription-manager repos --enable=rhel-7-server-extras-rpms  
+//安装并注册EPEL存储库
+sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm 
+//添加yum仓库文件
+cat &lt;&lt; EOM &gt; /etc/yum.repos.d/ceph.repo
+[ceph-noarch]
+name=Ceph noarch packages
+baseurl=https://download.ceph.com/rpm-{ceph-stable-release}/el7/noarch
+enabled=1
+gpgcheck=1
+type=rpm-md
+gpgkey=https://download.ceph.com/keys/release.asc
+EOM
+//更新仓库并安装ceph-deploy
+sudo yum update
+sudo yum install ceph-deploy
+
+</code></pre>
+
+<h3 id="ceph节点设置">Ceph节点设置</h3>
+
+<ul>
+<li>管理节点必须具有对Ceph节点的无密码SSH访问。当ceph-deploy以用户身份登录到Ceph节点时，该特定用户必须具有无密码的sudo权限。</li>
+</ul>
+
+<p>CentOS7：</p>
+
+<h4 id="安装时间服务器">安装时间服务器</h4>
+
+<ul>
+<li>建议安装时间服务器，特别是Ceph Monitor节点，以免时间不一致导致问题</li>
+</ul>
+
+<pre><code class="language-shell">sudo yum install ntp ntpdate ntp-doc
+</code></pre>
+
+<h4 id="安装ssh服务器">安装SSH服务器</h4>
+
+<ul>
+<li>确保SSH服务器在所有Ceph节点上运行</li>
+</ul>
+
+<pre><code class="language-shell">sudo yum install openssh-server
+</code></pre>
+
+<h4 id="创建ceph部署用户">创建Ceph部署用户</h4>
+
+<ul>
+<li>ceph-deploy实用程序必须以具有无密码sudo权限的用户身份登录到Ceph节点，因为它需要安装软件和配置文件而不提示输入密码。</li>
+<li>最新版本的ceph-deploy支持&ndash;username选项，因此您可以指定任何具有无密码sudo的用户（包括root用户，但不建议这样做）。</li>
+<li>我们建议在群集中的所有Ceph节点上为ceph-deploy创建特定用户。 请不要使用“ceph”作为用户名。</li>
+</ul>
+
+<pre><code class="language-shell">//在每个Ceph节点上创建一个新用户。
+ssh user@ceph-server
+sudo useradd -d /home/{username} -m {username}
+sudo passwd {username}
+
+//对于添加到每个Ceph节点的新用户，请确保该用户具有sudo权限。
+echo &quot;{username} ALL = (root) NOPASSWD:ALL&quot; | sudo tee /etc/sudoers.d/{username}
+sudo chmod 0440 /etc/sudoers.d/{username}
+</code></pre>
+
+<h4 id="启动无秘钥登陆">启动无秘钥登陆</h4>
+
+<ul>
+<li>由于ceph-deploy不会提示输入密码，因此必须在admin节点上生成SSH密钥并将公钥分发给每个Ceph节点。 ceph-deploy将尝试为初始监视器生成SSH密钥。</li>
+</ul>
+
+<pre><code class="language-shell">//生成SSH密钥，但不要使用sudo或root用户。将密码保留为空
+ssh-keygen
+
+Generating public/private key pair.
+Enter file in which to save the key (/ceph-admin/.ssh/id_rsa):
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /ceph-admin/.ssh/id_rsa.
+Your public key has been saved in /ceph-admin/.ssh/id_rsa.pub.
+//将密钥复制到每个Ceph节点，将{username}替换为您使用Create a Ceph Deploy User创建的用户名。
+ssh-copy-id {username}@node1
+ssh-copy-id {username}@node2
+ssh-copy-id {username}@node3
+//推荐修改ceph-deploy管理节点的〜/.ssh/config文件，以便ceph-deploy可以以您创建的用户身份登录到Ceph节点
+//而无需在每次执行时指定--username {username}部署。
+//这有一个额外的好处，即简化ssh和scp的使用。 将{username}替换为您创建的用户名：
+Host node1
+   Hostname node1
+   User {username}
+Host node2
+   Hostname node2
+   User {username}
+Host node3
+   Hostname node3
+   User {username}
+</code></pre>
+
+<h4 id="打开网络">打开网络</h4>
+
+<p>编辑/etc/sysconfig/network-scripts/ifcfg-eth0修改ONBOOT=yes</p>
+
+<h4 id="确保连通性">确保连通性</h4>
+
+<p>在/etc/hosts中添加各主机名和IP地址的解析</p>
+
+<h4 id="开放端口">开放端口</h4>
+
+<p>Ceph Monitor默认端口6789</p>
+
+<p>Ceph OSDs默认端口在6800-7300端口之间通信</p>
+
+<h4 id="关闭防火墙">关闭防火墙</h4>
+
+<pre><code class="language-shell">systemctl stop firewalld
+systemctl disable firewalld
+</code></pre>
+
+<h4 id="更精准配置防火墙">更精准配置防火墙</h4>
+
+<pre><code class="language-shell">//Ceph Mon节点
+sudo firewall-cmd --zone=public --add-service=ceph-mon --permanent
+//OSDs and MDSs
+sudo firewall-cmd --zone=public --add-service=ceph --permanent
+//让配置生效
+sudo firewall-cmd --reload
+//防火墙规则
+sudo iptables -A INPUT -i {iface} -p tcp -s {ip-address}/{netmask} --dport 6789 -j ACCEPT
+//保存配置
+/sbin/service iptables save
+
+</code></pre>
+
+<h4 id="tty">tty</h4>
+
+<p>使用visudo配置sudo权限</p>
+
+<h4 id="selinux">selinux</h4>
+
+<pre><code class="language-shell">sudo setenforce 0
+</code></pre>
+
+<h4 id="依赖包">依赖包</h4>
+
+<pre><code class="language-shell">sudo yum install yum-plugin-priorities
+sudo yum install yum-plugin-priorities --enablerepo=rhel-7-server-optional-rpms
+</code></pre>
+
+<h3 id="概要">概要</h3>
+
+<p>这样就完成了安装前配置了。下一步，开始集群部署。</p>
+
+<h2 id="存储集群">存储集群</h2>
+
+<p>搭建此集群之前，请先完成初始化设置。</p>
+
+<p>集群拓扑图如下：</p>
+
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwgy1fuigvj38fyj30e807kaac.jpg" alt="" /></p>
+
+<p>我们将在管理节点上使用ceph-deploy启动Ceph存储集群。创建一个三个Ceph节点集群，以便您可以探索Ceph功能。</p>
+
+<p>第一步：创建一个带有一个Ceph Monitor和三个Ceph OSD守护进程的Ceph存储集群。</p>
+
+<p>第二步：一旦群集达到活动+干净状态，通过添加第四个Ceph OSD，一个元数据服务器和另外两个Ceph监视器守护进程来扩展它。</p>
+
+<p>第三步：为获得最佳结果，请在管理节点上创建一个目录，以维护ceph-deploy为您的集群生成的配置文件和密钥。</p>
+
+<pre><code class="language-shell">mkdir my-cluster
+cd my-cluster
+</code></pre>
+
+<p>ceph-deploy实用程序将文件输出到当前目录。执行ceph-deploy时，请确保您位于此目录中。</p>
+
+<p><font color=red>注意:如果您以其他用户身份登录，请不要使用sudo调用ceph-deploy或以root身份运行它，因为它不会发出远程主机上所需的sudo命令。</font></p>
+
+<h3 id="重置服务器">重置服务器</h3>
+
+<ul>
+<li>如果您遇到麻烦并且想重新开始，请执行以下操作以清除Ceph软件包，并清除其所有数据和配置：</li>
+</ul>
+
+<pre><code class="language-shell">ceph-deploy purge {ceph-node} [{ceph-node}]
+ceph-deploy purgedata {ceph-node} [{ceph-node}]
+ceph-deploy forgetkeys
+rm ceph.*
+
+</code></pre>
+
+<ul>
+<li>如果执行purge，则必须重新安装Ceph。最后一个rm命令删除在先前安装期间由本地ceph-deploy写出的所有文件。</li>
+</ul>
+
+<h3 id="创建一个集群">创建一个集群</h3>
+
+<ul>
+<li>在您为保存配置详细信息而创建的目录的管理节点上，使用ceph-deploy执行以下步骤。</li>
+</ul>
+
+<h4 id="创建集群">创建集群</h4>
+
+<pre><code class="language-shell">ceph-deploy new {initial-monitor-node(s)}
+例：
+ceph-deploy new node1
+</code></pre>
+
+<h4 id="配置网络">配置网络</h4>
+
+<ul>
+<li>如果您有多个网络接口，请在Ceph配置文件的[global]部分下添加公共网络设置。有关详细信息，请参阅<a href="http://docs.ceph.com/docs/master/rados/configuration/network-config-ref">网络配置</a>参考</li>
+</ul>
+
+<pre><code class="language-shell">public network = {ip-address}/{bits}
+例：
+public network = 10.1.2.0/24
+
+</code></pre>
+
+<h4 id="ipv6配置">IPv6配置</h4>
+
+<pre><code class="language-shell">echo ms bind ipv6 = true &gt;&gt; ceph.conf
+</code></pre>
+
+<h4 id="安装ceph包">安装Ceph包</h4>
+
+<pre><code class="language-shell">ceph-deploy install {ceph-node} [...]
+例:
+ceph-deploy install node1 node2 node3
+</code></pre>
+
+<ul>
+<li>ceph-deploy实用程序将在每个节点上安装Ceph。</li>
+</ul>
+
+<h4 id="部署初始监视器并收集密钥">部署初始监视器并收集密钥</h4>
+
+<pre><code class="language-shell">ceph-deploy mon create-initial
+
+</code></pre>
+
+<p>完成此过程后，您的本地目录应具有以下密钥环：</p>
+
+<pre><code class="language-shell">ceph.client.admin.keyring
+ceph.bootstrap-mgr.keyring
+ceph.bootstrap-osd.keyring
+ceph.bootstrap-mds.keyring
+ceph.bootstrap-rgw.keyring
+ceph.bootstrap-rbd.keyring
+</code></pre>
+
+<p><font color=red>注意:如果此过程失败并显示类似于“无法找到/etc/ceph/ceph.client.admin.keyring”的消息，请确保ceph.conf中为监视节点列出的IP是公网IP，而不是私有IP。</font></p>
+
+<h4 id="优化deploy节点">优化deploy节点</h4>
+
+<ul>
+<li>使用ceph-deploy将配置文件和管理密钥复制到您的管理节点和Ceph节点，这样您就可以使用ceph CLI而无需在每次执行命令时指定监视器地址和ceph.client.admin.keyring。</li>
+</ul>
+
+<pre><code class="language-shell">ceph-deploy admin {ceph-node(s)}
+例：
+ceph-deploy admin node1 node2 node3
+
+
+</code></pre>
+
+<h4 id="部署管理节点">部署管理节点</h4>
+
+<pre><code class="language-shell">ceph-deploy mgr create node1  *Required only for luminous+ builds, i.e &gt;= 12.x builds*
+</code></pre>
+
+<h4 id="添加三个osd节点">添加三个OSD节点</h4>
+
+<ul>
+<li>出于这些说明的目的，我们假设您在每个节点中都有一个名为/ dev / vdb的未使用磁盘。确保设备当前未使用且不包含任何重要数据。</li>
+</ul>
+
+<pre><code class="language-shell">ceph-deploy osd create –data {device} {ceph-node}
+
+例：
+ceph-deploy osd create --data /dev/vdb node1
+ceph-deploy osd create --data /dev/vdb node2
+ceph-deploy osd create --data /dev/vdb node3
+</code></pre>
+
+<h4 id="检查集群健康">检查集群健康</h4>
+
+<pre><code class="language-shell">//如果健康会返回OK
+ssh node1 sudo ceph health
+//更详细的集群状态
+ssh node1 sudo ceph -s
+</code></pre>
+
+<p>至此，如果健康会返回OK，Ceph集群创建完成。</p>
+
+<h3 id="集群扩展">集群扩展</h3>
+
+<ul>
+<li>启动并运行基本群集后，下一步是扩展群集。将Ceph元数据服务器添加到node1。然后将Ceph Monitor和Ceph Manager添加到node2和node3，以提高可靠性和可用性。</li>
+</ul>
+
+<p>架构拓扑图如下：</p>
+
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwgy1fuijq5gutsj30fi0b4dg9.jpg" alt="" /></p>
+
+<h4 id="添加元数据服务器">添加元数据服务器</h4>
+
+<ul>
+<li>要使用CephFS，您至少需要一个元数据服务器。执行以下操作以创建元数据服务器：</li>
+</ul>
+
+<pre><code class="language-shell">ceph-deploy mds create {ceph-node}
+例：
+ceph-deploy mds create node1
+</code></pre>
+
+<h4 id="添加监视器">添加监视器</h4>
+
+<ul>
+<li>Ceph存储集群需要至少运行一个Ceph Monitor和Ceph Manager。</li>
+<li>为了实现高可用性，Ceph存储集群通常运行多个Ceph监视器，因此单个Ceph监视器的故障不会导致Ceph存储集群崩溃。</li>
+<li>Ceph使用Paxos算法，该算法需要大多数监视器（即比N/2更多，其中N是监视器的数量）才能形成法定人数。虽然这不是必需的，但监视器的数量往往越多更好。</li>
+</ul>
+
+<pre><code class="language-shell">//将两个Ceph监视器添加到您的群集：
+ceph-deploy mon add {ceph-nodes}
+例：
+ceph-deploy mon add node2 node3
+</code></pre>
+
+<ul>
+<li>一旦你添加了新的Ceph监视器，Ceph将开始同步监视器并形成一个法定人数。您可以通过执行以下操作来检查仲裁状态：</li>
+</ul>
+
+<pre><code class="language-shell">ceph quorum_status --format json-pretty
+
+</code></pre>
+
+<p><font color=red>提示：当您使用多个监视器运行Ceph时，您应该在每个监视器主机上安装和配置NTP。确保监视器时间是同步的。</font></p>
+
+<h4 id="添加管理器">添加管理器</h4>
+
+<ul>
+<li>Ceph Manager守护进程以主/备用模式运行。部署其他管理器守护程序可确保在一个守护程序或主机发生故障时，另一个守护程序或主机可以在不中断服务的情况下进行接管。</li>
+</ul>
+
+<pre><code class="language-shell">//部署其他管理器守护程序
+ceph-deploy mgr create node2 node3
+//查看备用管理器
+ssh node1 sudo ceph -s
+
+</code></pre>
+
+<h4 id="添加rgw实例">添加RGW实例</h4>
+
+<ul>
+<li>要使用Ceph的Ceph对象网关组件，必须部署RGW实例。执行以下命令以创建RGW的新实例：</li>
+</ul>
+
+<pre><code class="language-shell">ceph-deploy rgw create {gateway-node}
+例：
+ceph-deploy rgw create node1
+
+</code></pre>
+
+<ul>
+<li>默认情况下，RGW实例将侦听端口7480.可以通过在运行RGW的节点上编辑ceph.conf来更改此设置，如下所示：</li>
+</ul>
+
+<pre><code class="language-shell">[client]
+rgw frontends = civetweb port=80
+</code></pre>
+
+<ul>
+<li>要使用IPv6地址，请使用：</li>
+</ul>
+
+<pre><code class="language-shell">[client]
+rgw frontends = civetweb port=[::]:80
+</code></pre>
+
+<hr />
+
+<h3 id="存储-检索对象数据">存储/检索对象数据</h3>
+
+<ul>
+<li><p>要将对象数据存储在Ceph存储集群中，Ceph客户端必须：</p>
+
+<p>1.设置对象名称</p>
+
+<p>2.指定一个<a href="http://docs.ceph.com/docs/master/rados/operations/pools">pool</a></p></li>
+</ul>
+
+<pre><code class="language-shell">//查找对象位置
+ceph osd map {poolname} {object-name}
+
+</code></pre>
+
+<h4 id="练习找到一个对象">练习找到一个对象</h4>
+
+<ul>
+<li>作为练习，让我们创建一个对象。在命令行上使用rados put命令指定对象名称，包含某些对象数据的测试文件的路径和池名称。例如：</li>
+</ul>
+
+<pre><code class="language-shell">echo {Test-data} &gt; testfile.txt
+ceph osd pool create mytest 8
+rados put {object-name} {file-path} --pool=mytest
+rados put test-object-1 testfile.txt --pool=mytest
+</code></pre>
+
+<ul>
+<li>要验证Ceph存储集群是否存储了该对象，请执行以下命令：</li>
+</ul>
+
+<pre><code class="language-shell">rados -p mytest ls
+</code></pre>
+
+<ul>
+<li>确定对象位置</li>
+</ul>
+
+<pre><code class="language-shell">ceph osd map {pool-name} {object-name}
+ceph osd map mytest test-object-1
+</code></pre>
+
+<ul>
+<li>Ceph应该输出对象的位置。例如</li>
+</ul>
+
+<pre><code class="language-shell">osdmap e537 pool 'mytest' (1) object 'test-object-1' -&gt; pg 1.d1743484 (1.4) -&gt; up [1,0] acting [1,0]
+
+</code></pre>
+
+<ul>
+<li>要删除测试对象，只需使用rados rm命令将其删除即可。</li>
+</ul>
+
+<pre><code class="language-shell">rados rm test-object-1 --pool=mytest
+</code></pre>
+
+<ul>
+<li>要删除mytest pool</li>
+</ul>
+
+<pre><code class="language-shell">ceph osd pool rm mytest
+
+</code></pre>
+
+<p>（出于安全原因，您需要根据提示提供其他参数;删除pool会破坏数据。）</p>
+
+<p>随着集群的发展，对象位置可能会动态变化。 Ceph动态重新平衡的一个好处是Ceph使您不必手动执行数据迁移或平移。</p>
+
+<h2 id="ceph客户端">CEPH客户端</h2>
+
+<h3 id="块设备快速启动">块设备快速启动</h3>
+
+<ul>
+<li>块设备快速启动之前，您必须先执行“存储群集快速入门”中的步骤。在使用Ceph块设备之前，请确保您的Ceph存储群集处于活动+干净状态。</li>
+<li>Ceph块设备也称为RBD或RADOS块设备。</li>
+</ul>
+
+<p>拓扑图如下：</p>
+
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwgy1fuimcnau0ij30ez03bmx8.jpg" alt="" /></p>
+
+<ul>
+<li>您可以为您的ceph-client节点使用虚拟机，但不要在与Ceph存储群集节点相同的物理节点上执行以下过程（除非您使用VM）。</li>
+</ul>
+
+<h4 id="安装ceph">安装Ceph</h4>
+
+<ul>
+<li>验证您是否具有适当版本的Linux内核。</li>
+</ul>
+
+<pre><code class="language-shell">lsb_release -a
+uname -r
+</code></pre>
+
+<ul>
+<li>在admin节点上，使用ceph-deploy在ceph-client节点上安装Ceph。</li>
+</ul>
+
+<pre><code class="language-shell">ceph-deploy install ceph-client
+
+</code></pre>
+
+<ul>
+<li>在admin节点上，使用ceph-deploy将Ceph配置文件和ceph.client.admin.keyring复制到ceph-client。</li>
+</ul>
+
+<pre><code class="language-shell">ceph-deploy admin ceph-client
+
+</code></pre>
+
+<p>ceph-deploy实用程序将密钥环复制到/etc/ceph目录。确保密钥环文件具有适当的读取权限（例如，sudo chmod  +r /etc/ceph/ceph.client.admin.keyring）。</p>
+
+<h4 id="创建块设备pool">创建块设备pool</h4>
+
+<ul>
+<li>在管理节点上，使用ceph工具创建pool（我们建议使用名称&rsquo;rbd&rsquo;）。</li>
+<li>在管理节点上，使用rbd工具初始化池以供RBD使用：</li>
+</ul>
+
+<pre><code class="language-shell">rbd pool init &lt;pool-name&gt;
+
+</code></pre>
+
+<h4 id="配置块设备">配置块设备</h4>
+
+<pre><code class="language-shell">//在ceph-client节点上，创建块设备映像。
+rbd create foo --size 4096 --image-feature layering [-m {mon-IP}] [-k /path/to/ceph.client.admin.keyring]
+//在ceph-client节点上，将图像映射到块设备。
+sudo rbd map foo --name client.admin [-m {mon-IP}] [-k /path/to/ceph.client.admin.keyring]
+//通过在ceph-client节点上创建文件系统来使用块设备。
+sudo mkfs.ext4 -m0 /dev/rbd/rbd/foo
+This may take a few moments.
+//在ceph-client节点上挂载文件系统。
+sudo mkdir /mnt/ceph-block-device
+sudo mount /dev/rbd/rbd/foo /mnt/ceph-block-device
+cd /mnt/ceph-block-device
+</code></pre>
+
+<p>选项：将块设备配置为自动映射并在引导时挂载（并在关闭时卸载/取消映射） - 请参阅<a href="http://docs.ceph.com/docs/master/man/8/rbdmap">rbdmap</a>联机帮助页。</p>
+
+<p>更多请参阅： <a href="http://docs.ceph.com/docs/master/rbd">block devices</a></p>
+
+<h3 id="文件系统快速入门">文件系统快速入门</h3>
+
+<ul>
+<li>要使用CephFS快速入门指南，您必须首先执行“存储群集快速入门”指南中的过程。在管理主机上执行此快速入门。</li>
+</ul>
+
+<h4 id="先决条件">先决条件</h4>
+
+<ul>
+<li>验证您是否具有适当版本的Linux内核。有关详细信息，请参阅<a href="http://docs.ceph.com/docs/master/start/os-recommendations">OS建议</a></li>
+</ul>
+
+<pre><code class="language-shell">lsb_release -a
+uname -r
+</code></pre>
+
+<ul>
+<li>在admin节点上，使用ceph-deploy在ceph-client节点上安装Ceph。</li>
+</ul>
+
+<pre><code class="language-shell">ceph-deploy install ceph-client
+</code></pre>
+
+<ul>
+<li>确保Ceph存储群集正在运行并处于活动+干净状态。此外，请确保至少运行一个Ceph元数据服务器。</li>
+</ul>
+
+<pre><code class="language-shell">ceph -s [-m {monitor-ip-address}] [-k {path/to/ceph.client.admin.keyring}]
+</code></pre>
+
+<h4 id="创建一个文件系统">创建一个文件系统</h4>
+
+<ul>
+<li>您已经创建了MDS<a href="#存储集群">存储群集快速入门</a>，但在创建一些pool和文件系统之前它不会变为活动状态。请参阅<a href="http://docs.ceph.com/docs/master/cephfs/createfs/">创建Ceph文件系统</a>。</li>
+</ul>
+
+<pre><code class="language-shell">ceph osd pool create cephfs_data &lt;pg_num&gt;
+ceph osd pool create cephfs_metadata &lt;pg_num&gt;
+ceph fs new &lt;fs_name&gt; cephfs_metadata cephfs_data
+</code></pre>
+
+<h4 id="创建一个秘密文件">创建一个秘密文件</h4>
+
+<ul>
+<li>Ceph存储集群在默认情况下启用身份验证的情况下运行。您应该有一个包含密钥的文件（即，不是密钥环本身）。要获取特定用户的密钥，请执行以下过程：</li>
+</ul>
+
+<pre><code class="language-shell">//在密钥环文件中标识用户的密钥。例如:
+cat ceph.client.admin.keyring
+//复制将使用已安装的CephFS文件系统的用户的密钥。它应该看起来像这样：
+[client.admin]
+   key = AQCj2YpRiAe6CxAA7/ETt7Hcl9IyxyYciVs47w==
+//打开文本编辑器
+//将密钥粘贴到空文件中。它应该看起来像这样：
+AQCj2YpRiAe6CxAA7/ETt7Hcl9IyxyYciVs47w==
+//使用用户名作为属性保存文件（例如，admin.secret）。
+//确保文件权限适合用户，但对其他用户不可见。
+</code></pre>
+
+<h4 id="内核驱动程序">内核驱动程序</h4>
+
+<ul>
+<li>将CephFS挂载为内核驱动程序</li>
+</ul>
+
+<pre><code class="language-shell">sudo mkdir /mnt/mycephfs
+sudo mount -t ceph {ip-address-of-monitor}:6789:/ /mnt/mycephfs
+
+</code></pre>
+
+<ul>
+<li>Ceph存储集群默认使用身份验证。在“创建机密文件”部分中指定您创建的用户名和机密文件。例如：</li>
+</ul>
+
+<pre><code class="language-shell">sudo mount -t ceph 192.168.0.1:6789:/ /mnt/mycephfs -o name=admin,secretfile=admin.secret
+</code></pre>
+
+<p><font color=red>注意在管理节点上安装CephFS文件系统，而不是服务器节点。</font></p>
+
+<h4 id="用户空间的文件系统-fuse">用户空间的文件系统（FUSE）</h4>
+
+<ul>
+<li>将CephFS挂载为用户空间（FUSE）中的文件系统。</li>
+</ul>
+
+<pre><code class="language-shell">sudo mkdir ~/mycephfs
+sudo ceph-fuse -m {ip-address-of-monitor}:6789 ~/mycephfs
+</code></pre>
+
+<ul>
+<li>Ceph存储集群默认使用身份验证。如果密钥环不在默认位置（即/ etc / ceph），请指定密钥环：</li>
+</ul>
+
+<pre><code class="language-shell">sudo ceph-fuse -k ./ceph.client.admin.keyring -m 192.168.0.1:6789 ~/mycephfs
+</code></pre>
+
+<h4 id="附加信息">附加信息</h4>
+
+<p>有关其他信息，请参阅<a href="http://docs.ceph.com/docs/master/cephfs/">CephFS</a>。 CephFS不如Ceph Block Device和Ceph Object Storage稳定。如果遇到问题，请参阅<a href="http://docs.ceph.com/docs/master/cephfs/troubleshooting">故障排除</a></p>
+
+<h3 id="对象存储快速入门">对象存储快速入门</h3>
+
+<ul>
+<li>从firefly（v0.80）开始，Ceph Storage大大简化了Ceph对象网关的安装和配置。Gateway守护程序嵌入Civetweb，因此您无需安装Web服务器或配置FastCGI.此外，ceph-deploy可以安装网关包，生成密钥，配置数据目录并为您创建网关实例。</li>
+</ul>
+
+<p>提示：Civetweb默认使用端口7480。您必须打开端口7480，或将端口设置为Ceph配置文件中的首选端口（例如，端口80）。</p>
+
+<p>要启动Ceph对象网关，请按照以下步骤操作：</p>
+
+<h4 id="安装ceph对象网关">安装Ceph对象网关</h4>
+
+<ul>
+<li>在客户端节点上执行预安装步骤。如果您打算使用Civetweb的默认端口7480，则必须使用firewall-cmd或iptables打开它。</li>
+<li>从管理服务器的工作目录中，在客户机节点节点上安装Ceph对象网关包。例如：</li>
+</ul>
+
+<pre><code class="language-shell">ceph-deploy install --rgw &lt;client-node&gt; [&lt;client-node&gt; ...]
+
+</code></pre>
+
+<h4 id="创建ceph对象网关实例">创建Ceph对象网关实例</h4>
+
+<ul>
+<li>从管理服务器的工作目录中，在客户机节点上创建Ceph对象网关的实例。例如：</li>
+</ul>
+
+<pre><code class="language-shell">ceph-deploy rgw create &lt;client-node&gt;
+</code></pre>
+
+<p>网关运行后，您应该能够在端口7480上访问它。（例如，http//client-node:7480）。</p>
+
+<h4 id="配置ceph对象网关实例">配置Ceph对象网关实例</h4>
+
+<ul>
+<li>要更改默认端口（例如，更改为端口80），请修改Ceph配置文件。 添加名为[client.rgw&lt;client-node&gt;]的部分，将<client-node>替换为Ceph客户机节点的短节点名称（即hostname -s）。 例如，如果您的节点名称是client-node，请在[global]部分之后添加如下所示的部分：</li>
+</ul>
+
+<pre><code class="language-shell">[client.rgw.client-node]
+rgw_frontends = &quot;civetweb port=80&quot;
+</code></pre>
+
+<blockquote>
+<p>注意确保在rgw_frontends键/值对中的port = <port-number>之间不留空格。</p>
+
+<p>要点：如果您打算使用端口80，请确保Apache服务器未运行，否则将与Civetweb冲突。 我们建议在这种情况下删除Apache。</p>
+</blockquote>
+
+<ul>
+<li>要使新端口设置生效，请重新启动Ceph对象网关。</li>
+</ul>
+
+<pre><code class="language-shell">// 在Red Hat Enterprise Linux 7和Fedora上，运行以下命令：
+sudo systemctl restart ceph-radosgw.service
+//在Red Hat Enterprise Linux 6和Ubuntu上，运行以下命令：
+sudo service radosgw restart id=rgw.&lt;short-hostname&gt;
+</code></pre>
+
+<ul>
+<li>最后，检查以确保您选择的端口在节点的防火墙（例如，端口80）上打开。 如果未打开，请添加端口并重新加载防火墙配置。 例如：</li>
+</ul>
+
+<pre><code class="language-shell">sudo firewall-cmd --list-all
+sudo firewall-cmd --zone=public --add-port 80/tcp --permanent
+sudo firewall-cmd --reload
+</code></pre>
+
+<ul>
+<li>您应该能够进行未经身份验证的请求，并收到回复。 例如，没有这样的参数的请求：</li>
+</ul>
+
+<pre><code class="language-shell">http://&lt;client-node&gt;:80
+</code></pre>
+
+<ul>
+<li>应该得到这样的回应：</li>
+</ul>
+
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;ListAllMyBucketsResult xmlns=&quot;http://s3.amazonaws.com/doc/2006-03-01/&quot;&gt;
+  &lt;Owner&gt;
+    &lt;ID&gt;anonymous&lt;/ID&gt;
+    &lt;DisplayName&gt;&lt;/DisplayName&gt;
+  &lt;/Owner&gt;
+    &lt;Buckets&gt;
+  &lt;/Buckets&gt;
+&lt;/ListAllMyBucketsResult&gt;
+</code></pre>
+
+<p>有关其他管理和API详细信息，请参阅<a href="http://docs.ceph.com/docs/master/radosgw/config-ref">配置Ceph对象网关指南</a>。</p>
+
+    </article>
+
+    
+<ul class="article-share">
+  <li>
+    <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+  </li>
+  <li>
+    <div class="fb-share-button" data-href="http://www.wtlinux.com/ceph%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/" data-layout="button_count" data-action="like" data-size="small" data-show-faces="true" data-share="true"></div>
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.10";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+  </li>
+  <li>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <g:plus action="share"></g:plus>
+  </li>
+  <li>
+    <a href="http://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="en" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+  </li>
+  <li>
+    <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+    <script>!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+  </li>
+</ul>
+    <div class="disqus-comments">
+      <div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "wtlinux" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    </div>
+
+    <ul class="pager article-pager">
+      <li class="pager-newer pager-noitem">&lt; Newer</li>
+      <li class="pager-older pager-noitem">Older &gt;</li>
+    </ul>
+  </div>
+
+
+<div class="site-footer">
+  <div class="copyright">&copy; Copyright 2018 wtlinux</div>
+  <ul class="site-footer-items">
+    <li class="site-footer-item-about"><a href="/about/" title="About">About</a></li>
+  </ul>
+  <div class="powerdby">
+    Powered by <a href="https://gohugo.io/">Hugo</a> and <a href="https://github.com/taikii/whiteplain">Whiteplain</a>
+  </div>
+</div>
+<script src="/js/script.js"></script>
+<script src="/js/custom.js"></script>
+
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-122643141-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+
+
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-122643141-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    
+    
+    if (window.location.hostname == "localhost")
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = 'wtlinux';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+<div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "wtlinux" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+</body>
+</html>
