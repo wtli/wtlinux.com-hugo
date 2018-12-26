@@ -1,3 +1,9 @@
+---
+title: "PowerDNS部署"
+date: 2018-12-26T14:00:56+08:00
+draft: false
+---
+
 # PowerDNS
 PowerDNS提供两种服务：
 - 权威域名服务
