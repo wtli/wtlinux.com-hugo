@@ -2,9 +2,9 @@
 title: "PowerDNS部署"
 date: 2018-12-26T14:00:56+08:00
 draft: false
-tag: PowerDNS
+categories: "运维架构"
+tag: ["powerdns"]
 ---
-![](https://powerdnsblog.files.wordpress.com/2016/02/blog-header-technical.png)
 # PowerDNS
 
 PowerDNS提供两种服务：
@@ -224,3 +224,5 @@ passwd:123456
 [所有UI地址](https://github.com/PowerDNS/pdns/wiki/WebFrontends)
 
 [推荐UI界面](https://github.com/ngoduykhanh/PowerDNS-Admin)
+
+![](https://powerdnsblog.files.wordpress.com/2016/02/blog-header-technical.png)
