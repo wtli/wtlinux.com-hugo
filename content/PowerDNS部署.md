@@ -2,7 +2,6 @@
 title: "PowerDNS部署"
 date: 2018-12-26T14:00:56+08:00
 draft: false
-categories: "运维架构"
 tag: ["powerdns"]
 ---
 # PowerDNS
