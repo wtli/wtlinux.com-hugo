@@ -1,5 +1,5 @@
 baseurl = "http://www.wtlinux.com/"
-title = "www.wtlinux.com"
+title = "wtlinux"
 theme = "whiteplain"
 languageCode = "zh"
 # Disqus shortname
