@@ -25,7 +25,7 @@ copyright = "&copy; Copyright 2018 wtlinux"
 
   linkedin = "https://www.linkedin.com/in/%E7%94%B0-%E7%8E%8B-879609140/"
   github = "https://github.com/wtli"
-  email = "9761992672@qq.com"
+  email = "976199267@qq.com"
 
 [taxonomies]
   category = "categories"
@@ -38,6 +38,19 @@ copyright = "&copy; Copyright 2018 wtlinux"
   identifier = "categories"
   url = "/categories/"
   weight = 1
+
+[[menu.main]]
+  name = "运维架构"
+  parnet = "Categories"
+  url = "categories/ops"
+  weight = 1
+
+[[menu.main]]
+  name = "python"
+  parnet = "Categories"
+  url = "categories/python"
+  weight = 3
+
 [[menu.main]]
   name = "Tags"
   identifier = "tags"
