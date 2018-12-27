@@ -2,14 +2,19 @@
 title: "PowerDNS部署"
 date: 2018-12-26T14:00:56+08:00
 draft: false
+tag: PowerDNS
 ---
-
+![](https://powerdnsblog.files.wordpress.com/2016/02/blog-header-technical.png)
 # PowerDNS
+
 PowerDNS提供两种服务：
+
 - 权威域名服务
 - 转发域名服务
 
 下面进行两种服务的安装部署过程
+
+---
 # PowerDNS Authoritative Server
 
 ## 安装
