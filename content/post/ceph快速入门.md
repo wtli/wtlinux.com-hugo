@@ -1,8 +1,17 @@
 ---
 title: "Ceph快速入门"
-date: 2018-08-23T14:00:56+08:00
+description: ""
+date : 2018-07-22T00:11:56+08:00
+tags : [
+    "ceph",
+]
+categories : [
+    "ops",
+]
+
 draft: false
 ---
+
 # 安装ceph-deploy
 
 ## 预安装
