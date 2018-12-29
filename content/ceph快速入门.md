@@ -1,6 +1,6 @@
 ---
 title: "Ceph快速入门"
-description: ""
+description: "ceph-deploy工具在管理节点上的目录之外运行。任何具有网络连接和现代python环境和ssh（如Linux）的主机都应该可以工作"
 date : 2018-07-22T00:11:56+08:00
 tags : [
     "ceph",

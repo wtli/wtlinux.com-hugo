@@ -1,7 +1,7 @@
 baseurl = "http://www.wtlinux.com/"
 title = "wtlinux"
 theme = "whiteplain"
-languageCode = "en"
+languageCode = "en-us"
 # Disqus shortname
 disqusShortname = "wtlinux"
 # google analytics tracking id
@@ -36,6 +36,7 @@ copyright = "&copy; Copyright 2016 wtlinux"
   category = "categories"
   tag = "tags"
   series = "series"
+  archive = "archives"
 
 # Header Menu
 [[menu.main]]
