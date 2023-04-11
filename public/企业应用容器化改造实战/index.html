@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <title>企业应用容器化改造实战 - wtlinux</title>
+  <meta property="og:title" content="企业应用容器化改造实战 - wtlinux" />
+  <meta name="twitter:title" content="企业应用容器化改造实战 - wtlinux" />
+  <meta name="description" content="技术栈背景介绍 使用SLB&#43;Nginx&#43;Spring Cloud&#43;MySQL等技术部署应用程序，这是一种常见的互联网架构模式，可以帮助处理高流量和高负载的场景。 在这种架构下，SLB（Server Load Balancer）用于将流量分配到多个服务器上，以增加应用的可用性和负载均衡。同时，SLB还提供自动伸缩功能，可以自动调整实例数量来处理流量峰值。 Nginx则负责处理静态资源和反向代理等功能，通过将管理后台、控制台等静态资源由Nginx处理，可以显著提高应用的性能和响应速度。 Spring Cloud用于构建应用程序的微服务架构，它可以将应用拆分成多个小型服务，每个服务都有自己的独立部署、扩展和维护。Spring Cloud还提供了服务发现、配置管理、负载均衡等功能，可以方便快速地构建高可用性、弹性和灵活的应用程序。 最后，MySQL用于存储和管理应用程序的数据，提供数据持久化能力，支持高可用性、容错性，可以保障数据的安全性和可靠性。 通过以上的部署架构，可以确保应用的高可用性、高性能、高扩展性和高安全性，满足现代互联网应用的需求。
+传统部署方案介绍 传统的部署方案，即将Nginx和Java应用都直接部署在主机上。其中，Nginx使用的是openresty版本，Java使用的是1.8.0_172版本。前端静态文件通过Nginx作为web服务器进行服务，而后端的应用端口通过Nginx的upstream模块进行转发。 这种传统的部署方案存在扩缩容不方便的问题。当需要水平扩展的时候，需要手动增加部分机器和对应的后端应用实例，然后再维护后端应用的IP地址及端口。维护这些信息非常繁琐，容易出错。 不仅如此，在这种传统方式下还存在很多问题。比如，很难对后端应用进行限流、熔断等控制；无法快速构建和发布应用等等。 因此，准备尝试使用新一代的部署方案，使用阿里云的ACK版的Kubernetes等技术来改善这些问题。使用容器技术可以让我们轻松地构建、打包和发布应用，并且可以快速地进行扩容和缩容。此外，Kubernetes方案中使用的Service和Ingress等功能可以很好地实现端口和负载均衡的控制，避免了手工维护后端应用IP及端口的问题。
+容器云技术方案规划 在容器云技术方案规划中，最常用的方案是将无状态应用程序部署在集群中，以实现扩展性和高可用性。这里提到的方式是采用阿里云ACK Pro集群，将无状态的Nginx和Java应用部署到集群中。同时使用ingress作为应用程序的入口，并将应用程序所需的数据和文件存储在阿里云OSS上。 阿里云ACK Pro集群是一种高性能、高可扩展性的 Kubernetes 容器服务，允许您快速地通过分步骤向导或CLI 工具创建和管理 Kubernetes 集群。您可以使用集群来托管容器化应用程序，并通过自动化的容器扩展来处理工作负载的变化。 Nginx和Java应用程序是两种最常用的无状态应用程序。Nginx是一款流行的Web服务器和反向代理服务器，常用于负载均衡和反向代理。Java应用程序使用Java编程语言编写，是大多数企业级应用程序的选择。 在阿里云ACK Pro集群中，将应用程序部署为无状态服务，这意味着它们不依赖于特定的服务器或节点。这使得它们可以在集群中的任意节点上运行，并在出现故障时自动平衡负载。入口为ingress提供了一个负载均衡器，可以更好地管理应用流量并将其路由到正确的服务。 将数据和文件存储在阿里云OSS上，可以将数据与应用程序分离，从而降低应用程序的复杂度和可靠性。此外，OSS还提供安全、弹性和可扩展的存储，方便用户管理和扩展数据。
+阿里云K8S选型 集群配置 集群名称：test 集群规格：Pro版 地域：华东2（上海） 付费类型：按量付费 kubernetes版本：1.24.6-aliyun.1 容器运行时：containerd 1.5.13 专有网络：根据需求选择不同环境的VPC 网络插件：Terway，IPvlan和NetworkPolicy支持都选上 虚拟交换机：选2个不同区不同交换机即可 Pod虚拟交换机：选择虚拟交换机一样即可 Service CIDR：使用推荐配置即可 配置SNAT：选中为专有网络配置SNAT APIServer访问：标准型1（slb.s2.small） 安全组：自动创建普通安全组（这样后续可以添加已购服务器为节点） 其它选项默认即可。
+节点池配置 节点池名称：test 实例规格：分类选择最新推荐，然后选择可支持Pod数量多的最好 数量：3个，如果已有服务器，可以为0 操作系统：Alibaba Cloud Linux 2.1903 登陆方式：创建后设置即可 其它设置为默认
+组件配置 Ingress：Nginx Ingress 负载均衡类型：公网 负载均衡规格：标准型I 其它配置默认
+容器镜像服务选型 阿里云提供了企业版和个人版镜像仓库服务。其中，个人版是免费的，可以满足大部分用户的需求，因此我们建议直接使用个人版。
+镜像仓库是一种用于存储和管理Docker镜像的服务。在容器化应用程序中，Docker镜像是构建和部署应用程序的基本组成部分。因此，使用镜像仓库可以帮助我们更好地管理和部署容器化应用程序。
+阿里云的个人版镜像仓库可以免费使用，并提供了基本的镜像管理功能，包括创建、删除、查看和推送Docker镜像等。此外，个人版镜像仓库还提供了一些高级功能，如镜像自动构建和Webhook等。">
+  <meta property="og:description" content="技术栈背景介绍 使用SLB&#43;Nginx&#43;Spring Cloud&#43;MySQL等技术部署应用程序，这是一种常见的互联网架构模式，可以帮助处理高流量和高负载的场景。 在这种架构下，SLB（Server Load Balancer）用于将流量分配到多个服务器上，以增加应用的可用性和负载均衡。同时，SLB还提供自动伸缩功能，可以自动调整实例数量来处理流量峰值。 Nginx则负责处理静态资源和反向代理等功能，通过将管理后台、控制台等静态资源由Nginx处理，可以显著提高应用的性能和响应速度。 Spring Cloud用于构建应用程序的微服务架构，它可以将应用拆分成多个小型服务，每个服务都有自己的独立部署、扩展和维护。Spring Cloud还提供了服务发现、配置管理、负载均衡等功能，可以方便快速地构建高可用性、弹性和灵活的应用程序。 最后，MySQL用于存储和管理应用程序的数据，提供数据持久化能力，支持高可用性、容错性，可以保障数据的安全性和可靠性。 通过以上的部署架构，可以确保应用的高可用性、高性能、高扩展性和高安全性，满足现代互联网应用的需求。
+传统部署方案介绍 传统的部署方案，即将Nginx和Java应用都直接部署在主机上。其中，Nginx使用的是openresty版本，Java使用的是1.8.0_172版本。前端静态文件通过Nginx作为web服务器进行服务，而后端的应用端口通过Nginx的upstream模块进行转发。 这种传统的部署方案存在扩缩容不方便的问题。当需要水平扩展的时候，需要手动增加部分机器和对应的后端应用实例，然后再维护后端应用的IP地址及端口。维护这些信息非常繁琐，容易出错。 不仅如此，在这种传统方式下还存在很多问题。比如，很难对后端应用进行限流、熔断等控制；无法快速构建和发布应用等等。 因此，准备尝试使用新一代的部署方案，使用阿里云的ACK版的Kubernetes等技术来改善这些问题。使用容器技术可以让我们轻松地构建、打包和发布应用，并且可以快速地进行扩容和缩容。此外，Kubernetes方案中使用的Service和Ingress等功能可以很好地实现端口和负载均衡的控制，避免了手工维护后端应用IP及端口的问题。
+容器云技术方案规划 在容器云技术方案规划中，最常用的方案是将无状态应用程序部署在集群中，以实现扩展性和高可用性。这里提到的方式是采用阿里云ACK Pro集群，将无状态的Nginx和Java应用部署到集群中。同时使用ingress作为应用程序的入口，并将应用程序所需的数据和文件存储在阿里云OSS上。 阿里云ACK Pro集群是一种高性能、高可扩展性的 Kubernetes 容器服务，允许您快速地通过分步骤向导或CLI 工具创建和管理 Kubernetes 集群。您可以使用集群来托管容器化应用程序，并通过自动化的容器扩展来处理工作负载的变化。 Nginx和Java应用程序是两种最常用的无状态应用程序。Nginx是一款流行的Web服务器和反向代理服务器，常用于负载均衡和反向代理。Java应用程序使用Java编程语言编写，是大多数企业级应用程序的选择。 在阿里云ACK Pro集群中，将应用程序部署为无状态服务，这意味着它们不依赖于特定的服务器或节点。这使得它们可以在集群中的任意节点上运行，并在出现故障时自动平衡负载。入口为ingress提供了一个负载均衡器，可以更好地管理应用流量并将其路由到正确的服务。 将数据和文件存储在阿里云OSS上，可以将数据与应用程序分离，从而降低应用程序的复杂度和可靠性。此外，OSS还提供安全、弹性和可扩展的存储，方便用户管理和扩展数据。
+阿里云K8S选型 集群配置 集群名称：test 集群规格：Pro版 地域：华东2（上海） 付费类型：按量付费 kubernetes版本：1.24.6-aliyun.1 容器运行时：containerd 1.5.13 专有网络：根据需求选择不同环境的VPC 网络插件：Terway，IPvlan和NetworkPolicy支持都选上 虚拟交换机：选2个不同区不同交换机即可 Pod虚拟交换机：选择虚拟交换机一样即可 Service CIDR：使用推荐配置即可 配置SNAT：选中为专有网络配置SNAT APIServer访问：标准型1（slb.s2.small） 安全组：自动创建普通安全组（这样后续可以添加已购服务器为节点） 其它选项默认即可。
+节点池配置 节点池名称：test 实例规格：分类选择最新推荐，然后选择可支持Pod数量多的最好 数量：3个，如果已有服务器，可以为0 操作系统：Alibaba Cloud Linux 2.1903 登陆方式：创建后设置即可 其它设置为默认
+组件配置 Ingress：Nginx Ingress 负载均衡类型：公网 负载均衡规格：标准型I 其它配置默认
+容器镜像服务选型 阿里云提供了企业版和个人版镜像仓库服务。其中，个人版是免费的，可以满足大部分用户的需求，因此我们建议直接使用个人版。
+镜像仓库是一种用于存储和管理Docker镜像的服务。在容器化应用程序中，Docker镜像是构建和部署应用程序的基本组成部分。因此，使用镜像仓库可以帮助我们更好地管理和部署容器化应用程序。
+阿里云的个人版镜像仓库可以免费使用，并提供了基本的镜像管理功能，包括创建、删除、查看和推送Docker镜像等。此外，个人版镜像仓库还提供了一些高级功能，如镜像自动构建和Webhook等。">
+  <meta name="twitter:description" content="技术栈背景介绍 使用SLB&#43;Nginx&#43;Spring Cloud&#43;MySQL等技术部署应用程序，这是一种常见的互联网架构模式，可以帮助处理高流量和高负载的场景。 在这种架构下，SLB（Server Load Balancer）用于将流量分配到多个服务器上，以增加应用的可用性和负载均衡。同时，SLB还提供自动伸缩功能，可以自动调整实例数量来处理流量峰值。 Nginx则负责处理静态资源和反向代理等功 …">
+  <meta name="author" content="wang tian"/>
+  <meta property="og:site_name" content="wtlinux" />
+  <meta property="og:url" content="http://www.wtlinux.com/%E4%BC%81%E4%B8%9A%E5%BA%94%E7%94%A8%E5%AE%B9%E5%99%A8%E5%8C%96%E6%94%B9%E9%80%A0%E5%AE%9E%E6%88%98/" />
+  <meta property="og:type" content="article" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="generator" content="Hugo 0.111.3">
+  <link rel="stylesheet" href="/css/style.css" media="all" />
+  <link rel="stylesheet" href="/css/style-dark.css" media="all and (prefers-color-scheme: dark)" />
+
+  <link rel="stylesheet" href="/css/syntax.css" media="all" />
+  <link rel="stylesheet" href="/css/custom.css" media="all" />
+
+  <script src="/js/script.js"></script>
+  <script src="/js/custom.js"></script>
+  <script defer src="/js/fontawesome.js"></script>
+</head>
+
+<body>
+
+<header class="site-header">
+  <nav class="site-navi">
+    <h1 class="site-title"><a href="/">wtlinux</a></h1>
+    <ul class="site-navi-items">
+      <li class="site-navi-item-categories"><a href="/categories/" title="Categories">Categories</a></li>
+      <li class="site-navi-item-tags"><a href="/tags/" title="Tags">Tags</a></li>
+      <li class="site-navi-item-archives"><a href="/archives/" title="Archives">Archives</a></li>
+      <li class="site-navi-item-about"><a href="/about/" title="About">About</a></li>
+    </ul>
+  </nav>
+</header>
+<hr class="site-header-bottom">
+
+  <div class="main" role="main">
+    <article class="article">
+      
+      
+      <h1 class="article-title">企业应用容器化改造实战</h1>
+      
+      <hr class="article-title-bottom">
+      <ul class="article-meta">
+        <li class="article-meta-date"><time>April 11, 2023</time></li>
+      </ul>
+      
+<aside class="toc">
+  <nav id="TableOfContents">
+  <ul>
+    <li><a href="#技术栈背景介绍">技术栈背景介绍</a>
+      <ul>
+        <li><a href="#传统部署方案介绍">传统部署方案介绍</a></li>
+      </ul>
+    </li>
+    <li><a href="#容器云技术方案规划">容器云技术方案规划</a>
+      <ul>
+        <li><a href="#阿里云k8s选型">阿里云K8S选型</a></li>
+        <li><a href="#容器镜像服务选型">容器镜像服务选型</a></li>
+        <li><a href="#nginx前端web服务器改造规划">nginx前端web服务器改造规划</a></li>
+        <li><a href="#java后端无状态容器化改造规划">Java后端无状态容器化改造规划</a></li>
+        <li><a href="#日志及监控方案规划">日志及监控方案规划</a></li>
+        <li><a href="#测试验证及切换方案">测试验证及切换方案</a></li>
+      </ul>
+    </li>
+    <li><a href="#应用容器化方案实施">应用容器化方案实施</a>
+      <ul>
+        <li><a href="#配套准备">配套准备</a></li>
+        <li><a href="#java代码库改造">Java代码库改造</a></li>
+        <li><a href="#流水线配置">流水线配置</a></li>
+      </ul>
+    </li>
+    <li><a href="#应用日志收集方案实施">应用日志收集方案实施</a></li>
+    <li><a href="#遇到的一些问题及解决办法">遇到的一些问题及解决办法</a>
+      <ul>
+        <li><a href="#流水线问题">流水线问题</a></li>
+        <li><a href="#网络问题">网络问题</a></li>
+        <li><a href="#容器健康检查问题">容器健康检查问题</a></li>
+      </ul>
+    </li>
+    <li><a href="#总结">总结</a></li>
+  </ul>
+</nav>
+</aside>
+      <h2 id="技术栈背景介绍">技术栈背景介绍</h2>
+<p>使用SLB+Nginx+Spring Cloud+MySQL等技术部署应用程序，这是一种常见的互联网架构模式，可以帮助处理高流量和高负载的场景。
+在这种架构下，SLB（Server Load Balancer）用于将流量分配到多个服务器上，以增加应用的可用性和负载均衡。同时，SLB还提供自动伸缩功能，可以自动调整实例数量来处理流量峰值。
+Nginx则负责处理静态资源和反向代理等功能，通过将管理后台、控制台等静态资源由Nginx处理，可以显著提高应用的性能和响应速度。
+Spring Cloud用于构建应用程序的微服务架构，它可以将应用拆分成多个小型服务，每个服务都有自己的独立部署、扩展和维护。Spring Cloud还提供了服务发现、配置管理、负载均衡等功能，可以方便快速地构建高可用性、弹性和灵活的应用程序。
+最后，MySQL用于存储和管理应用程序的数据，提供数据持久化能力，支持高可用性、容错性，可以保障数据的安全性和可靠性。
+通过以上的部署架构，可以确保应用的高可用性、高性能、高扩展性和高安全性，满足现代互联网应用的需求。</p>
+<h3 id="传统部署方案介绍">传统部署方案介绍</h3>
+<p>传统的部署方案，即将Nginx和Java应用都直接部署在主机上。其中，Nginx使用的是openresty版本，Java使用的是1.8.0_172版本。前端静态文件通过Nginx作为web服务器进行服务，而后端的应用端口通过Nginx的upstream模块进行转发。
+这种传统的部署方案存在扩缩容不方便的问题。当需要水平扩展的时候，需要手动增加部分机器和对应的后端应用实例，然后再维护后端应用的IP地址及端口。维护这些信息非常繁琐，容易出错。
+不仅如此，在这种传统方式下还存在很多问题。比如，很难对后端应用进行限流、熔断等控制；无法快速构建和发布应用等等。
+因此，准备尝试使用新一代的部署方案，使用阿里云的ACK版的Kubernetes等技术来改善这些问题。使用容器技术可以让我们轻松地构建、打包和发布应用，并且可以快速地进行扩容和缩容。此外，Kubernetes方案中使用的Service和Ingress等功能可以很好地实现端口和负载均衡的控制，避免了手工维护后端应用IP及端口的问题。</p>
+<h2 id="容器云技术方案规划">容器云技术方案规划</h2>
+<p>在容器云技术方案规划中，最常用的方案是将无状态应用程序部署在集群中，以实现扩展性和高可用性。这里提到的方式是采用阿里云ACK Pro集群，将无状态的Nginx和Java应用部署到集群中。同时使用ingress作为应用程序的入口，并将应用程序所需的数据和文件存储在阿里云OSS上。
+阿里云ACK Pro集群是一种高性能、高可扩展性的 Kubernetes 容器服务，允许您快速地通过分步骤向导或CLI 工具创建和管理 Kubernetes 集群。您可以使用集群来托管容器化应用程序，并通过自动化的容器扩展来处理工作负载的变化。
+Nginx和Java应用程序是两种最常用的无状态应用程序。Nginx是一款流行的Web服务器和反向代理服务器，常用于负载均衡和反向代理。Java应用程序使用Java编程语言编写，是大多数企业级应用程序的选择。
+在阿里云ACK Pro集群中，将应用程序部署为无状态服务，这意味着它们不依赖于特定的服务器或节点。这使得它们可以在集群中的任意节点上运行，并在出现故障时自动平衡负载。入口为ingress提供了一个负载均衡器，可以更好地管理应用流量并将其路由到正确的服务。
+将数据和文件存储在阿里云OSS上，可以将数据与应用程序分离，从而降低应用程序的复杂度和可靠性。此外，OSS还提供安全、弹性和可扩展的存储，方便用户管理和扩展数据。</p>
+<h3 id="阿里云k8s选型">阿里云K8S选型</h3>
+<h4 id="集群配置">集群配置</h4>
+<p>集群名称：test
+集群规格：Pro版
+地域：华东2（上海）
+付费类型：按量付费
+kubernetes版本：1.24.6-aliyun.1
+容器运行时：containerd 1.5.13
+专有网络：根据需求选择不同环境的VPC
+网络插件：Terway，IPvlan和NetworkPolicy支持都选上
+虚拟交换机：选2个不同区不同交换机即可
+Pod虚拟交换机：选择虚拟交换机一样即可
+Service CIDR：使用推荐配置即可
+配置SNAT：选中为专有网络配置SNAT
+APIServer访问：标准型1（slb.s2.small）
+安全组：自动创建普通安全组（这样后续可以添加已购服务器为节点）
+其它选项默认即可。</p>
+<h4 id="节点池配置">节点池配置</h4>
+<p>节点池名称：test
+实例规格：分类选择最新推荐，然后选择可支持Pod数量多的最好
+数量：3个，如果已有服务器，可以为0
+操作系统：Alibaba Cloud Linux 2.1903
+登陆方式：创建后设置即可
+其它设置为默认</p>
+<h4 id="组件配置">组件配置</h4>
+<p>Ingress：Nginx Ingress
+负载均衡类型：公网
+负载均衡规格：标准型I
+其它配置默认</p>
+<h3 id="容器镜像服务选型">容器镜像服务选型</h3>
+<p>阿里云提供了企业版和个人版镜像仓库服务。其中，个人版是免费的，可以满足大部分用户的需求，因此我们建议直接使用个人版。</p>
+<p>镜像仓库是一种用于存储和管理Docker镜像的服务。在容器化应用程序中，Docker镜像是构建和部署应用程序的基本组成部分。因此，使用镜像仓库可以帮助我们更好地管理和部署容器化应用程序。</p>
+<p>阿里云的个人版镜像仓库可以免费使用，并提供了基本的镜像管理功能，包括创建、删除、查看和推送Docker镜像等。此外，个人版镜像仓库还提供了一些高级功能，如镜像自动构建和Webhook等。</p>
+<p>总之，使用阿里云个人版镜像仓库可以帮助我们更好地管理Docker镜像，并实现更高效、更可靠的容器化应用程序部署。</p>
+<h3 id="nginx前端web服务器改造规划">nginx前端web服务器改造规划</h3>
+<p>我们需要对主机上的nginx功能进行拆分，以实现更高效的功能。具体而言，我们需要将nginx拆分为两个部分：前端部分和后端API转发部分。</p>
+<p>前端部分是指直接返回静态页面的部分。为了实现这一功能，我们将前端静态文件存储在OSS中，并通过部署nginx容器来挂载OSS。这样，当用户访问前端页面时，nginx容器会直接返回OSS中的静态文件，从而实现前端页面的访问。</p>
+<p>后端API转发部分是指将用户的API请求转发到相应的后端服务。由于后端应用都是无状态的，并且没有固定的IP地址，因此我们需要使用Ingress服务发现功能来实现API的转发。具体而言，我们可以使用Ingress Controller来监视Ingress对象，并根据Ingress规则将请求转发到相应的后端服务。通过这种方式，我们可以实现对后端API的高效转发，并确保所有请求都被正确处理。</p>
+<h3 id="java后端无状态容器化改造规划">Java后端无状态容器化改造规划</h3>
+<p>为了使用容器化技术来部署Java应用程序，我们需要完成以下步骤：</p>
+<p>1.选择一个合适的Java应用程序基础镜像
+需要选择一个适合我们应用程序的Java基础镜像作为我们的基础镜像。通常来说，我们可以选择一些流行的Java基础镜像，如OpenJDK或Oracle JDK等。</p>
+<p>2.将Java应用程序打包成Docker镜像
+需要将Java应用程序打包成Docker镜像，以便可以在容器环境中运行。可以在代码仓库中设置相应的Dockerfile文件，然后通过流水线自动打成Docker镜像。</p>
+<p>3.推送Docker镜像到个人仓库
+将构建好的Docker镜像推送到个人仓库后，以便在部署时使用。我们使用阿里云的个人免费版镜像仓库，也可以使用私有镜像仓库。</p>
+<p>4.部署Java镜像到Kubernetes集群中
+在Kubernetes集群中部署Java镜像，需要创建Kubernetes Deployment和Service对象，并将Docker镜像指定为容器镜像。</p>
+<p>通过完成以上步骤，我们就可以使用容器化技术来部署Java应用程序。</p>
+<h3 id="日志及监控方案规划">日志及监控方案规划</h3>
+<p>1.日志方案：
+日志存储在新建的k8s的project中，需要注意的是测试环境日志默认保留180天，生产环境的日志默认也是180天，为了方便日后查询，需要另外设置保留时间，最好选择永久保存。</p>
+<p>2.监控方案：
+可以在Deployment的YAML中使用readiness和liveness探针来监控应用程序的状态情况。
+Kubernetes还提供了许多内置的监控功能，如Pod和容器的CPU、内存使用情况、网络流量等。我们可以使用这些监控功能来了解应用程序的运行情况，并及时采取措施来解决问题。</p>
+<h3 id="测试验证及切换方案">测试验证及切换方案</h3>
+<p>为了验证容器化部署的应用程序是否正确，我们需要进行测试验证并制定切换方案。具体而言，我们可以执行以下步骤：</p>
+<p>1.确保容器中和主机中的应用程序保持一致
+在进行测试验证之前，我们需要确保容器中和主机中的应用程序版本保持一致，以免出现不必要的问题。</p>
+<p>2.为容器内服务配置新的域名
+为了进行单独访问和验证，我们需要为容器内的服务配置一个新的域名。通常来说，我们可以使用Kubernetes的Ingress对象来实现这个目标。</p>
+<p>3.进行单独访问和验证
+我们可以使用新的域名来访问容器内的服务，并进行单独验证。在此过程中，我们需要确保容器内的服务可以正常访问和工作，并且可以按照预期返回正确的结果。</p>
+<p>4.将主机的域名切换到容器的入口IP
+在测试验证成功后，我们可以将主机的域名切换到容器的入口IP，以便将流量路由到容器中运行的应用程序。在此过程中，我们需要确保主机的域名可以正确地解析到容器的入口IP，并且容器内的应用程序可以正常处理和返回流量。</p>
+<p>通过进行测试验证和切换方案，我们可以确保容器化部署的应用程序可以正常运行，并且可以在不影响服务的情况下进行切换和迁移。</p>
+<h2 id="应用容器化方案实施">应用容器化方案实施</h2>
+<h3 id="配套准备">配套准备</h3>
+<p>前提条件：
+1.已经创建好了ACK集群
+2.命名空间已创建：test
+3.镜像仓库已设置完成
+4.已创建好oss存储的Bucket</p>
+<h4 id="配置管理">配置管理</h4>
+<p>先将nginx配置文件放入配置管理的配置项中
+配置项名称：conf.d
+内容名称：servername.conf
+值：直接将原来主机上的conf配置文件复制过来即可
+如：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">server <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        listen       80<span class="p">;</span>
+</span></span><span class="line"><span class="cl">        listen       <span class="o">[</span>::<span class="o">]</span>:80<span class="p">;</span>
+</span></span><span class="line"><span class="cl">        server_name www.baidu.com<span class="p">;</span>
+</span></span><span class="line"><span class="cl">    location ~ ^/test/ <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        rewrite ^/test<span class="o">(</span>.*<span class="o">)</span>$ <span class="nv">$1</span> break<span class="p">;</span>
+</span></span><span class="line"><span class="cl">        root /usr/share/html/test/dist<span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="存储">存储</h4>
+<p>创建oss存储pv及pvc
+1.选择存储卷-创建存储卷
+存储卷类型：oss
+名称：pv-test
+存储驱动：CSI
+总量：20Gi
+访问默认：ReadWriteMany
+访问证书：新建保密字典，输入命名空间，证书名称，及对应AK信息即可
+2.创建存储声明
+存储声明类型：oss
+名称：pvc-test
+分配模式：已有存储卷
+总量：20Gi</p>
+<h3 id="java代码库改造">Java代码库改造</h3>
+<h4 id="dockerfile编写">DockerFile编写</h4>
+<p>第一步：在代码中创建Dockerfile和deploy.yml文件
+Dockerfile示例：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="line"><span class="cl"><span class="c"># 基础镜像</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># 使用 Dragonwell JDK 作为基础镜像，以下是镜像名称和版本号</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">FROM</span><span class="s"> registry.cn-hangzhou.aliyuncs.com/dragonwell/dragonwell:8</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># 作者</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">MAINTAINER</span><span class="s"> Operations Department</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># 定义环境变量，你可以通过传递不同的参数来赋值</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ARG</span> APP_PORT<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ARG</span> SERVER_NAME<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ARG</span> SPRING_ENV<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># 环境变量赋值</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ENV</span> APP_PORT_NUMBER <span class="nv">$APP_PORT</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ENV</span> APPLICATION_NAME <span class="nv">$SERVER_NAME</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ENV</span> SPRING_PROFILE <span class="nv">$SPRING_ENV</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ENV</span> <span class="nv">TZ</span><span class="o">=</span>Asia/Shanghai<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># 创建一个目录，用于存储应用程序</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> mkdir -p /opt/<span class="nv">$APPLICATION_NAME</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># 设置工作目录</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /opt/$APPLICATION_NAME</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># 复制jar文件到容器内</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">COPY</span> ../zlsd-cpic-medical-business-web/target/<span class="nv">$APPLICATION_NAME</span>.jar /opt/<span class="nv">$APPLICATION_NAME</span>/<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># 定义启动命令</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">CMD</span> java <span class="nv">$JAVA_OPTS</span> -jar <span class="nv">$APPLICATION_NAME</span>.jar --spring.profiles.active<span class="o">=</span><span class="nv">$SPRING_PROFILE</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="deploy文件编写">deploy文件编写</h4>
+<p>deploy.yml示例</p>
+<ul>
+<li>这个 YAML 文件定义了一个 Deployment 对象，它描述了如何在 Kubernetes 中部署一个 Java 应用程序。Deployment 对象通过 spec 部分定义了需要创建的Pod和相关的配置和属性。</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span><span class="lnt">86
+</span><span class="lnt">87
+</span><span class="lnt">88
+</span><span class="lnt">89
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yml" data-lang="yml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">apps/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Deployment</span><span class="w"> </span><span class="c"># 定义部署对象类型</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">${SERVER_NAME}</span><span class="w"> </span><span class="c"># 用于选择要部署Deployment的Pod的标签</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">${SERVER_NAME}</span><span class="w"> </span><span class="c"># Deployment 对象名称</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">${KUBE_ENV}</span><span class="w"> </span><span class="c"># 部署 Deployment 的命名空间</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">progressDeadlineSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">600</span><span class="w"> </span><span class="c"># 用于部署对象升级期间的进度时间限制</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l">${REPLICAS_NUM}</span><span class="w"> </span><span class="c"># Deployment 对象需要创建的 Pod 副本数量</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">revisionHistoryLimit</span><span class="p">:</span><span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="c"># Deployment 对象历史记录保留的最大副本数</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">${SERVER_NAME}</span><span class="w"> </span><span class="c"># 将 Pod 的标签匹配到 Deployment 的标签</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">strategy</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">rollingUpdate</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">maxSurge</span><span class="p">:</span><span class="w"> </span><span class="m">25</span><span class="l">%</span><span class="w"> </span><span class="c"># 在更新过程中，最大可以同时创建 Pod 的数量与副本数的百分比例如：要达到ReplicaSet的4个Pod，在创建新的Pod时，25%可以创建1个额外的Pod</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">maxUnavailable</span><span class="p">:</span><span class="w"> </span><span class="m">25</span><span class="l">%</span><span class="w"> </span><span class="c"># 在更新过程中，最大可以同时停用的 Pod 的数量与副本数的百分比</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">RollingUpdate</span><span class="w"> </span><span class="c"># 策略类型</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">template</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;${SERVER_NAME}&#34;</span><span class="w"> </span><span class="c"># 为Pod定义标签，用于选择要部署到这个Pod的Deployment</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">containers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">env</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">aliyun_logs_app_tags</span><span class="w"> </span><span class="c"># 设置和阿里云日志服务集成的tags标签、将服务标识绑定在该标签上</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;appId=${APP_PORT}&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">aliyun_logs_log-stdout</span><span class="w"> </span><span class="c"># 告诉日志服务输出日志应从STDOUT输出而不是直接写入到容器</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l">stdout</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">LANG</span><span class="w"> </span><span class="c"># 设置容器的环境变量</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l">C.UTF-8</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">JAVA_HOME</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l">/usr/lib/jvm/java-1.8-openjdk/jre</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">APP_PORT</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;${APP_PORT}&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">SERVER_NAME</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;${SERVER_NAME}&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">SPRING_ENV</span><span class="w"> </span><span class="c"># 设置Spring应用的运行环境</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l">${KUBE_ENV}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">${IMAGE}</span><span class="w"> </span><span class="c"># 容器使用的镜像</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">imagePullPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">IfNotPresent</span><span class="w"> </span><span class="c"># 容器镜像拉取策略</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">livenessProbe</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">failureThreshold</span><span class="p">:</span><span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="c"># 可以容忍的最多连续失败次数</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">initialDelaySeconds</span><span class="p">:</span><span class="w"> </span><span class="m">60</span><span class="w"> </span><span class="c"># 应用程序首次被检查的延迟时间</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">periodSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="c"># 应用健康检查的时间间隔</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">successThreshold</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="c"># 成功检测次数</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">tcpSocket</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l">${APP_PORT}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">timeoutSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="c"># 监测超时时间</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">${SERVER_NAME}</span><span class="w"> </span><span class="c"># 容器名称</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">readinessProbe</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">failureThreshold</span><span class="p">:</span><span class="w"> </span><span class="m">3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">initialDelaySeconds</span><span class="p">:</span><span class="w"> </span><span class="m">60</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">periodSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">10</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">successThreshold</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">tcpSocket</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l">${APP_PORT}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">timeoutSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">resources</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">limits</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;${LIMIT_CPU}&#34;</span><span class="w"> </span><span class="c"># 容器使用资源的限制</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;${LIMIT_MEMORY}&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">requests</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;${REQUEST_CPU}&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;${REQUEST_MEMORY}&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">startupProbe</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">failureThreshold</span><span class="p">:</span><span class="w"> </span><span class="m">3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">initialDelaySeconds</span><span class="p">:</span><span class="w"> </span><span class="m">60</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">periodSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">10</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">successThreshold</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">tcpSocket</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l">${APP_PORT}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">timeoutSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">terminationMessagePath</span><span class="p">:</span><span class="w"> </span><span class="l">/dev/termination-log</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">terminationMessagePolicy</span><span class="p">:</span><span class="w"> </span><span class="l">File</span><span class="w"> </span><span class="c"># 是否将终止消息记录到文件里面</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">dnsPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">ClusterFirst</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">imagePullSecrets</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">regsecret</span><span class="w"> </span><span class="c"># 引用凭据，在部署Pod时从私有库拉取镜像时使用</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">restartPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">Always</span><span class="w"> </span><span class="c"># 如果Pod发生故障，当然应该重启</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">schedulerName</span><span class="p">:</span><span class="w"> </span><span class="l">default-scheduler</span><span class="w"> </span><span class="c"># pod 运行时所需使用的 Kubernetes 调度程序的名称</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">securityContext</span><span class="p">:</span><span class="w"> </span>{}<span class="w"> </span><span class="c"># 设置安全相关的 Pod 级别配置</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">terminationGracePeriodSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">30</span><span class="w"> </span><span class="c"># Pod 终止后等待终止容器处理的时间</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">status</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">availableReplicas</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">observedGeneration</span><span class="p">:</span><span class="w"> </span><span class="m">4</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">readyReplicas</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">updatedReplicas</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="流水线配置">流水线配置</h3>
+<p>以上两步完成之后，就可以去云效流水线里面选择部署到kubernetes的模板了，然后将对应变量在流水线中定义好即可。</p>
+<h4 id="前端代码流水线配置">前端代码流水线配置</h4>
+<p>直接将代码库的代码编译后，将dist文件夹上传到oss的bucket中。</p>
+<h4 id="后端代码流水线配置">后端代码流水线配置</h4>
+<p>使用云效中的Java应用部署到kubernetes集群中的模板，修改代码源，然后为对应的变量赋值，通过deploy脚本就可以部署到kubernetes集群中了。</p>
+<h4 id="nginx部署">nginx部署</h4>
+<p>创建无状态服务Nginx
+选择无状态菜单-使用镜像创建资源
+应用名称：nginx
+时区同步：勾选
+镜像名称：选择镜像-Docker官方镜像-nginx
+镜像tag：1.20.1
+镜像拉取策略：优先使用本地镜像
+端口：80，协议：tcp
+数据卷：
+1.增加本地存储
+存储卷类型：配置项
+挂载源：conf.d
+容器路径：/etc/nginx/conf.d
+2.增加云存储声明
+存储卷类型：云存储
+挂载源：pvc-test
+容器路径：/usr/share/html</p>
+<h4 id="服务配置">服务配置</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yml" data-lang="yml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Service</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">svc-nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">test</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">internalTrafficPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">Cluster </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">ports</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">svc-nginx-80-80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">TCP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">svc-nginx-443-443</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">443</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">TCP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="m">443</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">sessionAffinity</span><span class="p">:</span><span class="w"> </span><span class="l">None</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">ClusterIP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">status</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">loadBalancer</span><span class="p">:</span><span class="w"> </span>{}<span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="路由配置">路由配置</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yml" data-lang="yml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.k8s.io/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Ingress</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/force-ssl-redirect</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;true&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">generation</span><span class="p">:</span><span class="w"> </span><span class="m">3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">test.baidu.com</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">test</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">ingressClassName</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">rules</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">test.baidu.com</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">http</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">paths</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span>- <span class="nt">backend</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">service</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">svc-nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                  </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/test/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l">ImplementationSpecific</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">tls</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">hosts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="l">test.baidu.com</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">sslsecret</span><span class="w"> </span><span class="c">#证书的名称，在配置项，保密字典中设置</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">status</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">loadBalancer</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">ingress</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">ip</span><span class="p">:</span><span class="w"> </span><span class="m">8.8.8.8</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>这样，nginx作为的web服务器的配置完成。</p>
+<h2 id="应用日志收集方案实施">应用日志收集方案实施</h2>
+<p>在yml文件中定义日志的输入即可：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yml" data-lang="yml"><span class="line"><span class="cl"><span class="w">            </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">aliyun_logs_log-stdout</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l">stdout</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>需要在Logtail配置里面定义一下行首正则，例如：\d+-\d+-\d+\s\d+:\d+:\d.*</p>
+<h2 id="遇到的一些问题及解决办法">遇到的一些问题及解决办法</h2>
+<h3 id="流水线问题">流水线问题</h3>
+<p>问题1：No such file or directory
+解决办法：先查看是否存在对应的文件，如果有就排查路径是否错误。如果是打包之后找不到，就查看编译后的jar生成路径在哪，确定之后修改打包的路径。</p>
+<p>问题2：构建依赖缺失
+解决办法：此种报错一般是maven仓库中没有找到对应的依赖包，需要开发讲依赖包上传到maven仓库后，再进行打包编译。</p>
+<p>问题3：应用配置文件问题
+解决办法：检查pom文件是否正确配置</p>
+<p>问题4：构建参数问题
+解决办法：查看分支变量是否设置正确</p>
+<p>问题5：镜像拉取问题
+解决办法：在流水线中设置镜像仓库地址为vpc地址的时候，由于构建集群在北京，所以需要设置为公网的镜像仓库地址，就不回出现timeout的问题。</p>
+<h3 id="网络问题">网络问题</h3>
+<p>问题1：安全组问题
+解决办法：在创建集群的时候自动创建了安全组，需要添加策略，让容器内依赖的一些有状态的服务可以访问到。</p>
+<p>问题2：容器与主机端口不通问题
+解决办法：还是在安全组中进行策略设置，使容器网段与主机网段互通</p>
+<h4 id="nginx配置问题">nginx配置问题</h4>
+<p>问题1：403权限不够
+解决办法：通过挂载OSS后，nginx访问oss的挂载对应路径提示403，为nginx用户和用户组也不行，只能将nginx启动用户修改为root之后，就解决了。</p>
+<p>问题2: 404 没找到对应文件或目录
+解决办法：如果目录和文件存在，就需要检查nginx配置文件是否配置正确。</p>
+<h4 id="ingress配置问题">ingress配置问题</h4>
+<p>问题1：404
+解决办法：在nginx中通过upstream方式转发到后端服务器后，在Ingress配置中，路径匹配及正则需要进行修改。
+如</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">upstream rdc-rest-api-test <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    server 172.16.0.157:8080 <span class="nv">max_fails</span><span class="o">=</span><span class="m">3</span> <span class="nv">fail_timeout</span><span class="o">=</span>1s<span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在Ingress中就需要设置2个地方</p>
+<ul>
+<li>
+<p>路径为：/rdc-rest-api-test(/.*)</p>
+</li>
+<li>
+<p>添加nginx注解：nginx.ingress.kubernetes.io/rewrite-target $1</p>
+</li>
+</ul>
+<p>问题2：跨域问题
+解决办法：添加nginx注解：ginx.ingress.kubernetes.io/enable-cors true</p>
+<h4 id="应用日志时间与主机或者容器时间不一致的问题">应用日志时间与主机或者容器时间不一致的问题</h4>
+<p>应用启动完成后，容器和日志的时间问题困扰了很多人，下面从不同的时间问题进行分析和处理。
+基础镜像：openjdk:8-jre-alpine, 此镜像体积较小，55MB左右。</p>
+<p>有可能会碰到应用启动后空指针报错，后来使用阿里云的dragonwell:8镜像就正常启动，dragonwell镜像体积190MB左右。
+1、容器时间准确，日志时间不准确的处理
+方法一：在Dockerfile文件中，加入变量：
+ENV TZ=Asia/Shanghai
+方法二：在启动脚本中添加时区参数
+java -Duser.timezone=Asia/Shanghai -jar myapp.jar</p>
+<p>2、容器时间不准确，日志时间准确的处理</p>
+<p>如图，通过主机挂载的方式，让容器时间与主机时间保持一致。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yml" data-lang="yml"><span class="line"><span class="cl"><span class="w">          </span><span class="nt">volumeMounts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l">/etc/localtime</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">volume-localtime</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">dnsPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">ClusterFirst</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">imagePullSecrets</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">regsecret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">restartPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">Always</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">schedulerName</span><span class="p">:</span><span class="w"> </span><span class="l">default-scheduler</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">securityContext</span><span class="p">:</span><span class="w"> </span>{}<span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">terminationGracePeriodSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">30</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">volumes</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">hostPath</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/etc/localtime</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">volume-localtime</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>按照此方式执行后：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">/opt/ <span class="c1"># date -R</span>
+</span></span><span class="line"><span class="cl">Wed, <span class="m">22</span> Mar <span class="m">2023</span> 01:27:10 +0000
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>结果还是不准确。换一种方式，直接更换为阿里云的dragonwell:8镜像，容器时间也就正常了。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root<span class="o">]</span><span class="c1"># date -R</span>
+</span></span><span class="line"><span class="cl">Wed, <span class="m">22</span> Mar <span class="m">2023</span> 09:47:20 +0800
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>也可以参考阿里云文档：<a href="https://help.aliyun.com/document_detail/186941.html">https://help.aliyun.com/document_detail/186941.html</a>
+3、容器时间不准确，日志时间不准确的处理
+使用阿里云的dragonwell:8镜像
+在dockerfile中加入变量：ENV TZ=Asia/Shanghai</p>
+<h4 id="字体显示异常问题">字体显示异常问题</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@uat business<span class="o">]</span><span class="c1"># ls</span>
+</span></span><span class="line"><span class="cl">Dockerfile  fonts
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@uat business<span class="o">]</span><span class="c1"># ls fonts/</span>
+</span></span><span class="line"><span class="cl">MSYH.TTC
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@uat business<span class="o">]</span><span class="c1"># cat Dockerfile</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 基础镜像</span>
+</span></span><span class="line"><span class="cl">FROM  registry-vpc.cn-shanghai.aliyuncs.com/cpicyljk/dragonwell:8
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">RUN mkdir -p /usr/share/fonts/truetype/custom
+</span></span><span class="line"><span class="cl">COPY ./fonts/* /usr/share/fonts/truetype/custom/
+</span></span><span class="line"><span class="cl">RUN chmod -R <span class="m">755</span> /usr/share/fonts/truetype/custom/ <span class="o">&amp;&amp;</span> fc-cache -f -v
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@uat business<span class="o">]</span><span class="c1"># docker build -t registry-vpc.cn-shanghai.aliyuncs.com/cpicyljk/dragonwell:msyh .</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>MSYH.TTC:从Windows系统中找到微软雅黑字体的文件，上传到fonts目录
+Dockerfile:从基础镜像的基础上，新建coustom字体目录，将字体拷贝进去后，使用fc-cache命令刷新字体缓存。</p>
+<h3 id="容器健康检查问题">容器健康检查问题</h3>
+<p>一般设置应用程序首次被检查的延迟时间为15，这时间可能有点短，有些应用还没有启动完成就开始检查，检查失败又会进行重启，将参数修改为60之后就可以解决这问题了。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yml" data-lang="yml"><span class="line"><span class="cl"><span class="w">          </span><span class="nt">livenessProbe</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">failureThreshold</span><span class="p">:</span><span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="c"># 可以容忍的最多连续失败次数</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">initialDelaySeconds</span><span class="p">:</span><span class="w"> </span><span class="m">60</span><span class="w"> </span><span class="c"># 应用程序首次被检查的延迟时间</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">periodSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="c"># 应用健康检查的时间间隔</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">successThreshold</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="c"># 成功检测次数</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">tcpSocket</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l">${APP_PORT}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">timeoutSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="c"># 监测超时时间</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="总结">总结</h2>
+<p>到这里，基于阿里云ACK容器化改造基本完成，后续将有状态的服务和定时任务等部署在主机上的应用全部迁移到kubernetes集群中。</p>
+
+    </article>
+
+    
+
+    <div class="disqus-comments">
+      <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "wtlinux" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    </div>
+
+    <ul class="pager article-pager">
+      <li class="pager-newer pager-noitem">&lt; Newer</li>
+      <li class="pager-older">
+        <a href="/powerdns%E9%83%A8%E7%BD%B2/" data-toggle="tooltip" data-placement="top" title="PowerDNS部署">Older &gt;</a>
+      </li>
+    </ul>
+  </div>
+
+
+<div class="site-footer">
+  <div class="copyright">&copy; Copyright 2016 wtlinux</div>
+  <ul class="site-footer-items">
+    <li class="site-footer-item-about"><a href="/about/" title="About">About</a></li>
+  </ul>
+  <div class="powerdby">
+    Powered by <a href="https://gohugo.io/">Hugo</a> and <a href="https://github.com/taikii/whiteplain">Whiteplain</a>
+  </div>
+</div>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-122643141-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+
+</body>
+</html>

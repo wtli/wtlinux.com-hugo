@@ -1,6 +1,4 @@
 [submodule "public"]
 	path = public
 	url = git@github.com:wtli/wtli.github.io.git
-[submodule "public/wtli.github.io"]
-	path = public/wtli.github.io
-	url = git@github.com:wtli/wtli.github.io.git
+

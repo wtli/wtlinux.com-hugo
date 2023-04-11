@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en-us">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
@@ -7,18 +7,18 @@
   <meta property="og:title" content="PowerDNS部署 - wtlinux" />
   <meta name="twitter:title" content="PowerDNS部署 - wtlinux" />
   <meta name="description" content="PowerDNS PowerDNS提供两种服务：
- 权威域名服务 转发域名服务  下面进行两种服务的安装部署过程
-PowerDNS Authoritative Server 安装 yum install -y pdns yum install -y pdns-backend-mysql  更多后端支持类型
+权威域名服务 转发域名服务 下面进行两种服务的安装部署过程
+PowerDNS Authoritative Server 安装 yum install -y pdnsyum install -y pdns-backend-mysql 更多后端支持类型
 修改配置 vim /etc/pdns/pdns.conf
-launch=gmysql gmysql-host=10.2.4.118 gmysql-user=pdns gmysql-dbname=pdns gmysql-password=mysecretpassword  初始化数据库 MariaDB [(none)]&gt; create database pdns; MariaDB [(none)]&gt; use pdns MariaDB [pdns]&gt; CREATE USER &#39;pdns&#39;@&#39;localhost&#39; IDENTIFIED BY &#39;mysecretpassword&#39;; MariaDB [pdns]&gt; grant all on pdns.* to pdns@&#39;%&#39; identified by &#39;mysecretpassword&#39;; #创建表 CREATE TABLE domains ( id INT AUTO_INCREMENT, name VARCHAR(255) NOT NULL, master VARCHAR(128) DEFAULT NULL, last_check INT DEFAULT NULL, type VARCHAR(6) NOT NULL, notified_serial INT UNSIGNED DEFAULT NULL, account VARCHAR(40) CHARACTER SET &#39;utf8&#39; DEFAULT NULL, PRIMARY KEY (id) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE UNIQUE INDEX name_index ON domains(name); CREATE TABLE records ( id BIGINT AUTO_INCREMENT, domain_id INT DEFAULT NULL, name VARCHAR(255) DEFAULT NULL, type VARCHAR(10) DEFAULT NULL, content VARCHAR(64000) DEFAULT NULL, ttl INT DEFAULT NULL, prio INT DEFAULT NULL, disabled TINYINT(1) DEFAULT 0, ordername VARCHAR(255) BINARY DEFAULT NULL, auth TINYINT(1) DEFAULT 1, PRIMARY KEY (id) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE INDEX nametype_index ON records(name,type); CREATE INDEX domain_id ON records(domain_id); CREATE INDEX ordername ON records (ordername); CREATE TABLE supermasters ( ip VARCHAR(64) NOT NULL, nameserver VARCHAR(255) NOT NULL, account VARCHAR(40) CHARACTER SET &#39;utf8&#39; NOT NULL, PRIMARY KEY (ip, nameserver) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE TABLE comments ( id INT AUTO_INCREMENT, domain_id INT NOT NULL, name VARCHAR(255) NOT NULL, type VARCHAR(10) NOT NULL, modified_at INT NOT NULL, account VARCHAR(40) CHARACTER SET &#39;utf8&#39; DEFAULT NULL, comment TEXT CHARACTER SET &#39;utf8&#39; NOT NULL, PRIMARY KEY (id) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE INDEX comments_name_type_idx ON comments (name, type); CREATE INDEX comments_order_idx ON comments (domain_id, modified_at); CREATE TABLE domainmetadata ( id INT AUTO_INCREMENT, domain_id INT NOT NULL, kind VARCHAR(32), content TEXT, PRIMARY KEY (id) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE INDEX domainmetadata_idx ON domainmetadata (domain_id, kind); CREATE TABLE cryptokeys ( id INT AUTO_INCREMENT, domain_id INT NOT NULL, flags INT NOT NULL, active BOOL, content TEXT, PRIMARY KEY(id) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE INDEX domainidindex ON cryptokeys(domain_id); CREATE TABLE tsigkeys ( id INT AUTO_INCREMENT, name VARCHAR(255), algorithm VARCHAR(50), secret VARCHAR(255), PRIMARY KEY (id) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE UNIQUE INDEX namealgoindex ON tsigkeys(name, algorithm); #插入一些测试数据 INSERT INTO domains (name, type) values (&#39;example.">
+launch=gmysqlgmysql-host=10.2.4.118gmysql-user=pdnsgmysql-dbname=pdnsgmysql-password=mysecretpassword 初始化数据库 MariaDB [(none)]&gt; create database pdns;MariaDB [(none)]&gt; use pdnsMariaDB [pdns]&gt; CREATE USER &#39;pdns&#39;@&#39;localhost&#39; IDENTIFIED BY &#39;mysecretpassword&#39;;MariaDB [pdns]&gt; grant all on pdns.* to pdns@&#39;%&#39; identified by &#39;mysecretpassword&#39;;#创建表CREATE TABLE domains (id INT AUTO_INCREMENT,name VARCHAR(255) NOT NULL,master VARCHAR(128) DEFAULT NULL,last_check INT DEFAULT NULL,type VARCHAR(6) NOT NULL,notified_serial INT UNSIGNED DEFAULT NULL,account VARCHAR(40) CHARACTER SET &#39;utf8&#39; DEFAULT NULL,PRIMARY KEY (id)) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;CREATE UNIQUE INDEX name_index ON domains(name);CREATE TABLE records (id BIGINT AUTO_INCREMENT,domain_id INT DEFAULT NULL,name VARCHAR(255) DEFAULT NULL,type VARCHAR(10) DEFAULT NULL,content VARCHAR(64000) DEFAULT NULL,ttl INT DEFAULT NULL,prio INT DEFAULT NULL,disabled TINYINT(1) DEFAULT 0,ordername VARCHAR(255) BINARY DEFAULT NULL,auth TINYINT(1) DEFAULT 1,PRIMARY KEY (id)) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;CREATE INDEX nametype_index ON records(name,type);CREATE INDEX domain_id ON records(domain_id);CREATE INDEX ordername ON records (ordername);CREATE TABLE supermasters (ip VARCHAR(64) NOT NULL,nameserver VARCHAR(255) NOT NULL,account VARCHAR(40) CHARACTER SET &#39;utf8&#39; NOT NULL,PRIMARY KEY (ip, nameserver)) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;CREATE TABLE comments (id INT AUTO_INCREMENT,domain_id INT NOT NULL,name VARCHAR(255) NOT NULL,type VARCHAR(10) NOT NULL,modified_at INT NOT NULL,account VARCHAR(40) CHARACTER SET &#39;utf8&#39; DEFAULT NULL,comment TEXT CHARACTER SET &#39;utf8&#39; NOT NULL,PRIMARY KEY (id)) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;CREATE INDEX comments_name_type_idx ON comments (name, type);CREATE INDEX comments_order_idx ON comments (domain_id, modified_at);CREATE TABLE domainmetadata (id INT AUTO_INCREMENT,domain_id INT NOT NULL,kind VARCHAR(32),content TEXT,PRIMARY KEY (id)) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;CREATE INDEX domainmetadata_idx ON domainmetadata (domain_id, kind);CREATE TABLE cryptokeys (id INT AUTO_INCREMENT,domain_id INT NOT NULL,flags INT NOT NULL,active BOOL,content TEXT,PRIMARY KEY(id)) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;CREATE INDEX domainidindex ON cryptokeys(domain_id);CREATE TABLE tsigkeys (id INT AUTO_INCREMENT,name VARCHAR(255),algorithm VARCHAR(50),secret VARCHAR(255),PRIMARY KEY (id)) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;CREATE UNIQUE INDEX namealgoindex ON tsigkeys(name, algorithm);#插入一些测试数据INSERT INTO domains (name, type) values (&#39;example.">
   <meta property="og:description" content="PowerDNS PowerDNS提供两种服务：
- 权威域名服务 转发域名服务  下面进行两种服务的安装部署过程
-PowerDNS Authoritative Server 安装 yum install -y pdns yum install -y pdns-backend-mysql  更多后端支持类型
+权威域名服务 转发域名服务 下面进行两种服务的安装部署过程
+PowerDNS Authoritative Server 安装 yum install -y pdnsyum install -y pdns-backend-mysql 更多后端支持类型
 修改配置 vim /etc/pdns/pdns.conf
-launch=gmysql gmysql-host=10.2.4.118 gmysql-user=pdns gmysql-dbname=pdns gmysql-password=mysecretpassword  初始化数据库 MariaDB [(none)]&gt; create database pdns; MariaDB [(none)]&gt; use pdns MariaDB [pdns]&gt; CREATE USER &#39;pdns&#39;@&#39;localhost&#39; IDENTIFIED BY &#39;mysecretpassword&#39;; MariaDB [pdns]&gt; grant all on pdns.* to pdns@&#39;%&#39; identified by &#39;mysecretpassword&#39;; #创建表 CREATE TABLE domains ( id INT AUTO_INCREMENT, name VARCHAR(255) NOT NULL, master VARCHAR(128) DEFAULT NULL, last_check INT DEFAULT NULL, type VARCHAR(6) NOT NULL, notified_serial INT UNSIGNED DEFAULT NULL, account VARCHAR(40) CHARACTER SET &#39;utf8&#39; DEFAULT NULL, PRIMARY KEY (id) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE UNIQUE INDEX name_index ON domains(name); CREATE TABLE records ( id BIGINT AUTO_INCREMENT, domain_id INT DEFAULT NULL, name VARCHAR(255) DEFAULT NULL, type VARCHAR(10) DEFAULT NULL, content VARCHAR(64000) DEFAULT NULL, ttl INT DEFAULT NULL, prio INT DEFAULT NULL, disabled TINYINT(1) DEFAULT 0, ordername VARCHAR(255) BINARY DEFAULT NULL, auth TINYINT(1) DEFAULT 1, PRIMARY KEY (id) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE INDEX nametype_index ON records(name,type); CREATE INDEX domain_id ON records(domain_id); CREATE INDEX ordername ON records (ordername); CREATE TABLE supermasters ( ip VARCHAR(64) NOT NULL, nameserver VARCHAR(255) NOT NULL, account VARCHAR(40) CHARACTER SET &#39;utf8&#39; NOT NULL, PRIMARY KEY (ip, nameserver) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE TABLE comments ( id INT AUTO_INCREMENT, domain_id INT NOT NULL, name VARCHAR(255) NOT NULL, type VARCHAR(10) NOT NULL, modified_at INT NOT NULL, account VARCHAR(40) CHARACTER SET &#39;utf8&#39; DEFAULT NULL, comment TEXT CHARACTER SET &#39;utf8&#39; NOT NULL, PRIMARY KEY (id) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE INDEX comments_name_type_idx ON comments (name, type); CREATE INDEX comments_order_idx ON comments (domain_id, modified_at); CREATE TABLE domainmetadata ( id INT AUTO_INCREMENT, domain_id INT NOT NULL, kind VARCHAR(32), content TEXT, PRIMARY KEY (id) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE INDEX domainmetadata_idx ON domainmetadata (domain_id, kind); CREATE TABLE cryptokeys ( id INT AUTO_INCREMENT, domain_id INT NOT NULL, flags INT NOT NULL, active BOOL, content TEXT, PRIMARY KEY(id) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE INDEX domainidindex ON cryptokeys(domain_id); CREATE TABLE tsigkeys ( id INT AUTO_INCREMENT, name VARCHAR(255), algorithm VARCHAR(50), secret VARCHAR(255), PRIMARY KEY (id) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE UNIQUE INDEX namealgoindex ON tsigkeys(name, algorithm); #插入一些测试数据 INSERT INTO domains (name, type) values (&#39;example.">
+launch=gmysqlgmysql-host=10.2.4.118gmysql-user=pdnsgmysql-dbname=pdnsgmysql-password=mysecretpassword 初始化数据库 MariaDB [(none)]&gt; create database pdns;MariaDB [(none)]&gt; use pdnsMariaDB [pdns]&gt; CREATE USER &#39;pdns&#39;@&#39;localhost&#39; IDENTIFIED BY &#39;mysecretpassword&#39;;MariaDB [pdns]&gt; grant all on pdns.* to pdns@&#39;%&#39; identified by &#39;mysecretpassword&#39;;#创建表CREATE TABLE domains (id INT AUTO_INCREMENT,name VARCHAR(255) NOT NULL,master VARCHAR(128) DEFAULT NULL,last_check INT DEFAULT NULL,type VARCHAR(6) NOT NULL,notified_serial INT UNSIGNED DEFAULT NULL,account VARCHAR(40) CHARACTER SET &#39;utf8&#39; DEFAULT NULL,PRIMARY KEY (id)) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;CREATE UNIQUE INDEX name_index ON domains(name);CREATE TABLE records (id BIGINT AUTO_INCREMENT,domain_id INT DEFAULT NULL,name VARCHAR(255) DEFAULT NULL,type VARCHAR(10) DEFAULT NULL,content VARCHAR(64000) DEFAULT NULL,ttl INT DEFAULT NULL,prio INT DEFAULT NULL,disabled TINYINT(1) DEFAULT 0,ordername VARCHAR(255) BINARY DEFAULT NULL,auth TINYINT(1) DEFAULT 1,PRIMARY KEY (id)) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;CREATE INDEX nametype_index ON records(name,type);CREATE INDEX domain_id ON records(domain_id);CREATE INDEX ordername ON records (ordername);CREATE TABLE supermasters (ip VARCHAR(64) NOT NULL,nameserver VARCHAR(255) NOT NULL,account VARCHAR(40) CHARACTER SET &#39;utf8&#39; NOT NULL,PRIMARY KEY (ip, nameserver)) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;CREATE TABLE comments (id INT AUTO_INCREMENT,domain_id INT NOT NULL,name VARCHAR(255) NOT NULL,type VARCHAR(10) NOT NULL,modified_at INT NOT NULL,account VARCHAR(40) CHARACTER SET &#39;utf8&#39; DEFAULT NULL,comment TEXT CHARACTER SET &#39;utf8&#39; NOT NULL,PRIMARY KEY (id)) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;CREATE INDEX comments_name_type_idx ON comments (name, type);CREATE INDEX comments_order_idx ON comments (domain_id, modified_at);CREATE TABLE domainmetadata (id INT AUTO_INCREMENT,domain_id INT NOT NULL,kind VARCHAR(32),content TEXT,PRIMARY KEY (id)) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;CREATE INDEX domainmetadata_idx ON domainmetadata (domain_id, kind);CREATE TABLE cryptokeys (id INT AUTO_INCREMENT,domain_id INT NOT NULL,flags INT NOT NULL,active BOOL,content TEXT,PRIMARY KEY(id)) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;CREATE INDEX domainidindex ON cryptokeys(domain_id);CREATE TABLE tsigkeys (id INT AUTO_INCREMENT,name VARCHAR(255),algorithm VARCHAR(50),secret VARCHAR(255),PRIMARY KEY (id)) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;CREATE UNIQUE INDEX namealgoindex ON tsigkeys(name, algorithm);#插入一些测试数据INSERT INTO domains (name, type) values (&#39;example.">
   <meta name="twitter:description" content="PowerDNS PowerDNS提供两种服务：
- 权威域名服务 转发域名服务  下面进行两种服务的安装部署过程
-PowerDNS Authoritative Server 安装 yum install -y pdns yum install -y pdns-backend-mysql  更多后端支持类型
+权威域名服务 转发域名服务 下面进行两种服务的安装部署过程
+PowerDNS Authoritative Server 安装 yum install -y pdnsyum install -y pdns-backend-mysql 更多后端支持类型
 修改配置 vim /etc/pdns/pdns.conf
 launch=gmysql …">
   <meta name="author" content="wang tian"/>
@@ -26,12 +26,16 @@ launch=gmysql …">
   <meta property="og:url" content="http://www.wtlinux.com/powerdns%E9%83%A8%E7%BD%B2/" />
   <meta property="og:type" content="article" />
   <meta name="twitter:card" content="summary" />
-  <meta name="generator" content="Hugo 0.41" />
+  <meta name="generator" content="Hugo 0.111.3">
   <link rel="stylesheet" href="/css/style.css" media="all" />
+  <link rel="stylesheet" href="/css/style-dark.css" media="all and (prefers-color-scheme: dark)" />
+
   <link rel="stylesheet" href="/css/syntax.css" media="all" />
   <link rel="stylesheet" href="/css/custom.css" media="all" />
-  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-  <script defer src="https://use.fontawesome.com/releases/v5.0.10/js/all.js" integrity="sha384-slN8GvtUJGnv6ca26v8EzVaR9DC58QEwsIk9q1QXdCU8Yu8ck/tL/5szYlBbqmS+" crossorigin="anonymous"></script>
+
+  <script src="/js/script.js"></script>
+  <script src="/js/custom.js"></script>
+  <script defer src="/js/fontawesome.js"></script>
 </head>
 
 <body>
@@ -49,11 +53,6 @@ launch=gmysql …">
 </header>
 <hr class="site-header-bottom">
 
-<script src="https://yandex.st/highlightjs/8.0/highlight.min.js"></script>
-<link rel="stylesheet" href="https://yandex.st/highlightjs/8.0/styles/default.min.css">
-<script>hljs.initHighlightingOnLoad();</script>
-
-
   <div class="main" role="main">
     <article class="article">
       
@@ -67,73 +66,53 @@ launch=gmysql …">
       
 <aside class="toc">
   <nav id="TableOfContents">
-<ul>
-<li><a href="#powerdns">PowerDNS</a></li>
-<li><a href="#powerdns-authoritative-server">PowerDNS Authoritative Server</a>
-<ul>
-<li><a href="#安装">安装</a></li>
-<li><a href="#修改配置">修改配置</a></li>
-<li><a href="#初始化数据库">初始化数据库</a></li>
-<li><a href="#启动服务">启动服务</a></li>
-<li><a href="#验证服务">验证服务</a></li>
-</ul></li>
-<li><a href="#powerdns-recursor">PowerDNS Recursor</a>
-<ul>
-<li><a href="#安装-1">安装</a></li>
-<li><a href="#配置">配置</a></li>
-<li><a href="#启动">启动</a></li>
-<li><a href="#powerdns扩展">PowerDNS扩展</a>
-<ul>
-<li><a href="#权威域名服务和转发域名服务适用场景">权威域名服务和转发域名服务适用场景:</a></li>
-</ul></li>
-<li><a href="#powerdns的web服务">PowerDNS的web服务</a></li>
-<li><a href="#powerdns的ui界面">PowerDNS的UI界面</a></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#安装">安装</a></li>
+    <li><a href="#修改配置">修改配置</a></li>
+    <li><a href="#初始化数据库">初始化数据库</a></li>
+    <li><a href="#启动服务">启动服务</a></li>
+    <li><a href="#验证服务">验证服务</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#安装-1">安装</a></li>
+    <li><a href="#配置">配置</a></li>
+    <li><a href="#启动">启动</a></li>
+    <li><a href="#powerdns扩展">PowerDNS扩展</a>
+      <ul>
+        <li><a href="#权威域名服务和转发域名服务适用场景">权威域名服务和转发域名服务适用场景:</a></li>
+      </ul>
+    </li>
+    <li><a href="#powerdns的web服务">PowerDNS的web服务</a></li>
+    <li><a href="#powerdns的ui界面">PowerDNS的UI界面</a></li>
+  </ul>
 </nav>
 </aside>
-      
-
-<h1 id="powerdns">PowerDNS</h1>
-
+      <h1 id="powerdns">PowerDNS</h1>
 <p>PowerDNS提供两种服务：</p>
-
 <ul>
 <li>权威域名服务</li>
 <li>转发域名服务</li>
 </ul>
-
 <p>下面进行两种服务的安装部署过程</p>
-
-<hr />
-
+<hr>
 <h1 id="powerdns-authoritative-server">PowerDNS Authoritative Server</h1>
-
 <h2 id="安装">安装</h2>
-
-<pre><code>yum install -y pdns
+<pre tabindex="0"><code>yum install -y pdns
 yum install -y pdns-backend-mysql
-</code></pre>
-
-<p><a href="https://doc.powerdns.com/authoritative/backends/index.html">更多后端支持类型</a></p>
-
+</code></pre><p><a href="https://doc.powerdns.com/authoritative/backends/index.html">更多后端支持类型</a></p>
 <h2 id="修改配置">修改配置</h2>
-
 <p>vim /etc/pdns/pdns.conf</p>
-
-<pre><code>launch=gmysql
+<pre tabindex="0"><code>launch=gmysql
 gmysql-host=10.2.4.118
 gmysql-user=pdns
 gmysql-dbname=pdns
 gmysql-password=mysecretpassword
-</code></pre>
-
-<h2 id="初始化数据库">初始化数据库</h2>
-
-<pre><code>MariaDB [(none)]&gt; create database pdns;
+</code></pre><h2 id="初始化数据库">初始化数据库</h2>
+<pre tabindex="0"><code>MariaDB [(none)]&gt; create database pdns;
 MariaDB [(none)]&gt; use pdns
-MariaDB [pdns]&gt; CREATE USER 'pdns'@'localhost' IDENTIFIED BY 'mysecretpassword';
-MariaDB [pdns]&gt; grant all on pdns.* to pdns@'%' identified by 'mysecretpassword';
+MariaDB [pdns]&gt; CREATE USER &#39;pdns&#39;@&#39;localhost&#39; IDENTIFIED BY &#39;mysecretpassword&#39;;
+MariaDB [pdns]&gt; grant all on pdns.* to pdns@&#39;%&#39; identified by &#39;mysecretpassword&#39;;
 #创建表
 CREATE TABLE domains (
   id                    INT AUTO_INCREMENT,
@@ -142,9 +121,9 @@ CREATE TABLE domains (
   last_check            INT DEFAULT NULL,
   type                  VARCHAR(6) NOT NULL,
   notified_serial       INT UNSIGNED DEFAULT NULL,
-  account               VARCHAR(40) CHARACTER SET 'utf8' DEFAULT NULL,
+  account               VARCHAR(40) CHARACTER SET &#39;utf8&#39; DEFAULT NULL,
   PRIMARY KEY (id)
-) Engine=InnoDB CHARACTER SET 'latin1';
+) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;
 
 CREATE UNIQUE INDEX name_index ON domains(name);
 
@@ -161,7 +140,7 @@ CREATE TABLE records (
   ordername             VARCHAR(255) BINARY DEFAULT NULL,
   auth                  TINYINT(1) DEFAULT 1,
   PRIMARY KEY (id)
-) Engine=InnoDB CHARACTER SET 'latin1';
+) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;
 
 CREATE INDEX nametype_index ON records(name,type);
 CREATE INDEX domain_id ON records(domain_id);
@@ -171,9 +150,9 @@ CREATE INDEX ordername ON records (ordername);
 CREATE TABLE supermasters (
   ip                    VARCHAR(64) NOT NULL,
   nameserver            VARCHAR(255) NOT NULL,
-  account               VARCHAR(40) CHARACTER SET 'utf8' NOT NULL,
+  account               VARCHAR(40) CHARACTER SET &#39;utf8&#39; NOT NULL,
   PRIMARY KEY (ip, nameserver)
-) Engine=InnoDB CHARACTER SET 'latin1';
+) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;
 
 
 CREATE TABLE comments (
@@ -182,10 +161,10 @@ CREATE TABLE comments (
   name                  VARCHAR(255) NOT NULL,
   type                  VARCHAR(10) NOT NULL,
   modified_at           INT NOT NULL,
-  account               VARCHAR(40) CHARACTER SET 'utf8' DEFAULT NULL,
-  comment               TEXT CHARACTER SET 'utf8' NOT NULL,
+  account               VARCHAR(40) CHARACTER SET &#39;utf8&#39; DEFAULT NULL,
+  comment               TEXT CHARACTER SET &#39;utf8&#39; NOT NULL,
   PRIMARY KEY (id)
-) Engine=InnoDB CHARACTER SET 'latin1';
+) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;
 
 CREATE INDEX comments_name_type_idx ON comments (name, type);
 CREATE INDEX comments_order_idx ON comments (domain_id, modified_at);
@@ -197,7 +176,7 @@ CREATE TABLE domainmetadata (
   kind                  VARCHAR(32),
   content               TEXT,
   PRIMARY KEY (id)
-) Engine=InnoDB CHARACTER SET 'latin1';
+) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;
 
 CREATE INDEX domainmetadata_idx ON domainmetadata (domain_id, kind);
 
@@ -209,7 +188,7 @@ CREATE TABLE cryptokeys (
   active                BOOL,
   content               TEXT,
   PRIMARY KEY(id)
-) Engine=InnoDB CHARACTER SET 'latin1';
+) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;
 
 CREATE INDEX domainidindex ON cryptokeys(domain_id);
 
@@ -220,51 +199,37 @@ CREATE TABLE tsigkeys (
   algorithm             VARCHAR(50),
   secret                VARCHAR(255),
   PRIMARY KEY (id)
-) Engine=InnoDB CHARACTER SET 'latin1';
+) Engine=InnoDB CHARACTER SET &#39;latin1&#39;;
 
 CREATE UNIQUE INDEX namealgoindex ON tsigkeys(name, algorithm);
 
 #插入一些测试数据
-INSERT INTO domains (name, type) values ('example.com', 'NATIVE');
+INSERT INTO domains (name, type) values (&#39;example.com&#39;, &#39;NATIVE&#39;);
 INSERT INTO records (domain_id, name, content, type,ttl,prio)
-VALUES (1,'example.com','localhost admin.example.com 1 10380 3600 604800 3600','SOA',86400,NULL);
+VALUES (1,&#39;example.com&#39;,&#39;localhost admin.example.com 1 10380 3600 604800 3600&#39;,&#39;SOA&#39;,86400,NULL);
 INSERT INTO records (domain_id, name, content, type,ttl,prio)
-VALUES (1,'example.com','dns-us1.powerdns.net','NS',86400,NULL);
+VALUES (1,&#39;example.com&#39;,&#39;dns-us1.powerdns.net&#39;,&#39;NS&#39;,86400,NULL);
 INSERT INTO records (domain_id, name, content, type,ttl,prio)
-VALUES (1,'example.com','dns-eu1.powerdns.net','NS',86400,NULL);
+VALUES (1,&#39;example.com&#39;,&#39;dns-eu1.powerdns.net&#39;,&#39;NS&#39;,86400,NULL);
 INSERT INTO records (domain_id, name, content, type,ttl,prio)
-VALUES (1,'www.example.com','192.0.2.10','A',120,NULL);
+VALUES (1,&#39;www.example.com&#39;,&#39;192.0.2.10&#39;,&#39;A&#39;,120,NULL);
 INSERT INTO records (domain_id, name, content, type,ttl,prio)
-VALUES (1,'mail.example.com','192.0.2.12','A',120,NULL);
+VALUES (1,&#39;mail.example.com&#39;,&#39;192.0.2.12&#39;,&#39;A&#39;,120,NULL);
 INSERT INTO records (domain_id, name, content, type,ttl,prio)
-VALUES (1,'localhost.example.com','127.0.0.1','A',120,NULL);
+VALUES (1,&#39;localhost.example.com&#39;,&#39;127.0.0.1&#39;,&#39;A&#39;,120,NULL);
 INSERT INTO records (domain_id, name, content, type,ttl,prio)
-VALUES (1,'example.com','mail.example.com','MX',120,25);
-</code></pre>
-
-<h2 id="启动服务">启动服务</h2>
-
-<pre><code>systemctl start pdns.service
-</code></pre>
-
-<h2 id="验证服务">验证服务</h2>
-
-<pre><code>[root@pdns ~]# dig +short www.example.com @127.0.0.1
+VALUES (1,&#39;example.com&#39;,&#39;mail.example.com&#39;,&#39;MX&#39;,120,25);
+</code></pre><h2 id="启动服务">启动服务</h2>
+<pre tabindex="0"><code>systemctl start pdns.service
+</code></pre><h2 id="验证服务">验证服务</h2>
+<pre tabindex="0"><code>[root@pdns ~]# dig +short www.example.com @127.0.0.1
 192.0.2.10
-</code></pre>
-
-<p>至此：PowerDNS权威域名服务部署完成</p>
-
+</code></pre><p>至此：PowerDNS权威域名服务部署完成</p>
 <h1 id="powerdns-recursor">PowerDNS Recursor</h1>
-
 <h2 id="安装-1">安装</h2>
-
-<pre><code>yum install -y pdns-recursor
-</code></pre>
-
-<h2 id="配置">配置</h2>
-
-<pre><code>cat /etc/pdns-recursor/recursor.conf
+<pre tabindex="0"><code>yum install -y pdns-recursor
+</code></pre><h2 id="配置">配置</h2>
+<pre tabindex="0"><code>cat /etc/pdns-recursor/recursor.conf
 setuid=pdns-recursor
 setgid=pdns-recursor
 local-address=0.0.0.0
@@ -274,31 +239,25 @@ forward-zones-file=/etc/pdns-recursor/forward-zones
 [root@powerdns-master ~]# cat /etc/pdns-recursor/forward-zones
 bldz.local=10.2.3.123:1053,10.2.3.124:1053
 pro.testin.cn=10.2.3.123:1053,10.2.3.124:1053
-</code></pre>
-
-<h2 id="启动">启动</h2>
-
-<pre><code>systemctl start pdns-recursor.service
-</code></pre>
-
-<h2 id="powerdns扩展">PowerDNS扩展</h2>
-
+</code></pre><h2 id="启动">启动</h2>
+<pre tabindex="0"><code>systemctl start pdns-recursor.service
+</code></pre><h2 id="powerdns扩展">PowerDNS扩展</h2>
 <h3 id="权威域名服务和转发域名服务适用场景">权威域名服务和转发域名服务适用场景:</h3>
-
 <ul>
-<li><p>权威域名服务：公司维护自己一套域名解析，例如：bldz.com，自己购买两台DNS服务器，然后在域名的基本信息中进行修改地址，然后阿里云就会向.com域名解析更改为自己DNS地址。</p></li>
-
-<li><p>转发域名服务：负责发出其他请求以满足客户端的DNS查询。</p></li>
-
-<li><p>当公司内部有一套DNS，也需要使用外部DNS的时候，两种服务都需要安装。</p></li>
+<li>
+<p>权威域名服务：公司维护自己一套域名解析，例如：bldz.com，自己购买两台DNS服务器，然后在域名的基本信息中进行修改地址，然后阿里云就会向.com域名解析更改为自己DNS地址。</p>
+</li>
+<li>
+<p>转发域名服务：负责发出其他请求以满足客户端的DNS查询。</p>
+</li>
+<li>
+<p>当公司内部有一套DNS，也需要使用外部DNS的时候，两种服务都需要安装。</p>
+</li>
 </ul>
-
 <h2 id="powerdns的web服务">PowerDNS的web服务</h2>
-
 <p>修改配置：
 vim /etc/pdns/pdns.conf</p>
-
-<pre><code>daemon=no
+<pre tabindex="0"><code>daemon=no
 guardian=no
 launch=gmysql
 gmysql-host=10.2.4.118
@@ -320,50 +279,19 @@ webserver-print-arguments=no
 http://dnsserver:8081
 user:admin
 passwd:123456
-</code></pre>
-
-<h2 id="powerdns的ui界面">PowerDNS的UI界面</h2>
-
+</code></pre><h2 id="powerdns的ui界面">PowerDNS的UI界面</h2>
 <p><a href="https://github.com/PowerDNS/pdns/wiki/WebFrontends">所有UI地址</a></p>
-
 <p><a href="https://github.com/ngoduykhanh/PowerDNS-Admin">推荐UI界面</a></p>
-
-<p><img src="https://powerdnsblog.files.wordpress.com/2016/02/blog-header-technical.png" alt="" /></p>
+<p><img src="https://powerdnsblog.files.wordpress.com/2016/02/blog-header-technical.png" alt=""></p>
 
     </article>
 
     
-<ul class="article-share">
-  <li>
-    <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-  </li>
-  <li>
-    <div class="fb-share-button" data-href="http://www.wtlinux.com/powerdns%E9%83%A8%E7%BD%B2/" data-layout="button_count" data-action="like" data-size="small" data-show-faces="true" data-share="true"></div>
-    <div id="fb-root"></div>
-    <script>(function(d, s, id) {
-      var js, fjs = d.getElementsByTagName(s)[0];
-      if (d.getElementById(id)) return;
-      js = d.createElement(s); js.id = id;
-      js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.10";
-      fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));</script>
-  </li>
-  <li>
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
-    <g:plus action="share"></g:plus>
-  </li>
-  <li>
-    <a href="http://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="en" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
-  </li>
-  <li>
-    <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-    <script>!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-  </li>
-</ul>
+
     <div class="disqus-comments">
       <div id="disqus_thread"></div>
-<script>
-    var disqus_config = function () {
+<script type="application/javascript">
+    window.disqus_config = function () {
     
     
     
@@ -384,14 +312,18 @@ passwd:123456
     </div>
 
     <ul class="pager article-pager">
-      <li class="pager-newer pager-noitem">&lt; Newer</li>
-      <li class="pager-older pager-noitem">Older &gt;</li>
+      <li class="pager-newer">
+          <a href="/%E4%BC%81%E4%B8%9A%E5%BA%94%E7%94%A8%E5%AE%B9%E5%99%A8%E5%8C%96%E6%94%B9%E9%80%A0%E5%AE%9E%E6%88%98/" data-toggle="tooltip" data-placement="top" title="企业应用容器化改造实战">&lt; Newer</a>
+      </li>
+      <li class="pager-older">
+        <a href="/ceph%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/" data-toggle="tooltip" data-placement="top" title="Ceph快速入门">Older &gt;</a>
+      </li>
     </ul>
   </div>
 
 
 <div class="site-footer">
-  <div class="copyright">&copy; Copyright 2018 wtlinux</div>
+  <div class="copyright">&copy; Copyright 2016 wtlinux</div>
   <ul class="site-footer-items">
     <li class="site-footer-item-about"><a href="/about/" title="About">About</a></li>
   </ul>
@@ -399,10 +331,8 @@ passwd:123456
     Powered by <a href="https://gohugo.io/">Hugo</a> and <a href="https://github.com/taikii/whiteplain">Whiteplain</a>
   </div>
 </div>
-<script src="/js/script.js"></script>
-<script src="/js/custom.js"></script>
 
-<script>
+<script type="application/javascript">
 var doNotTrack = false;
 if (!doNotTrack) {
 	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -414,58 +344,6 @@ if (!doNotTrack) {
 	ga('send', 'pageview');
 }
 </script>
-
-
-<script>
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-122643141-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='//www.google-analytics.com/analytics.js'></script>
-
-
-
-<div id="disqus_thread"></div>
-<script type="text/javascript">
-
-(function() {
-    
-    
-    if (window.location.hostname == "localhost")
-        return;
-
-    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-    var disqus_shortname = 'wtlinux';
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-})();
-</script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-<div id="disqus_thread"></div>
-<script>
-    var disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "wtlinux" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
 </body>
 </html>

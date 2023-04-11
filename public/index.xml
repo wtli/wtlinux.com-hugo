@@ -1,16 +1,29 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>wtlinux</title>
     <link>http://www.wtlinux.com/</link>
     <description>Recent content on wtlinux</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>zh</language>
-    <copyright>&amp;copy; Copyright 2018 wtlinux</copyright>
-    <lastBuildDate>Wed, 26 Dec 2018 14:00:56 +0800</lastBuildDate>
-    
-	<atom:link href="http://www.wtlinux.com/index.xml" rel="self" type="application/rss+xml" />
-    
+    <language>en-us</language>
+    <copyright>&amp;copy; Copyright 2016 wtlinux</copyright>
+    <lastBuildDate>Sun, 22 Jul 2018 00:11:56 +0800</lastBuildDate><atom:link href="http://www.wtlinux.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>企业应用容器化改造实战</title>
+      <link>http://www.wtlinux.com/%E4%BC%81%E4%B8%9A%E5%BA%94%E7%94%A8%E5%AE%B9%E5%99%A8%E5%8C%96%E6%94%B9%E9%80%A0%E5%AE%9E%E6%88%98/</link>
+      <pubDate>Tue, 11 Apr 2023 14:17:23 +0800</pubDate>
+      
+      <guid>http://www.wtlinux.com/%E4%BC%81%E4%B8%9A%E5%BA%94%E7%94%A8%E5%AE%B9%E5%99%A8%E5%8C%96%E6%94%B9%E9%80%A0%E5%AE%9E%E6%88%98/</guid>
+      <description>技术栈背景介绍 使用SLB+Nginx+Spring Cloud+MySQL等技术部署应用程序，这是一种常见的互联网架构模式，可以帮助处理高流量和高负载的场景。 在这种架构下，SLB（Server Load Balancer）用于将流量分配到多个服务器上，以增加应用的可用性和负载均衡。同时，SLB还提供自动伸缩功能，可以自动调整实例数量来处理流量峰值。 Nginx则负责处理静态资源和反向代理等功能，通过将管理后台、控制台等静态资源由Nginx处理，可以显著提高应用的性能和响应速度。 Spring Cloud用于构建应用程序的微服务架构，它可以将应用拆分成多个小型服务，每个服务都有自己的独立部署、扩展和维护。Spring Cloud还提供了服务发现、配置管理、负载均衡等功能，可以方便快速地构建高可用性、弹性和灵活的应用程序。 最后，MySQL用于存储和管理应用程序的数据，提供数据持久化能力，支持高可用性、容错性，可以保障数据的安全性和可靠性。 通过以上的部署架构，可以确保应用的高可用性、高性能、高扩展性和高安全性，满足现代互联网应用的需求。
+传统部署方案介绍 传统的部署方案，即将Nginx和Java应用都直接部署在主机上。其中，Nginx使用的是openresty版本，Java使用的是1.8.0_172版本。前端静态文件通过Nginx作为web服务器进行服务，而后端的应用端口通过Nginx的upstream模块进行转发。 这种传统的部署方案存在扩缩容不方便的问题。当需要水平扩展的时候，需要手动增加部分机器和对应的后端应用实例，然后再维护后端应用的IP地址及端口。维护这些信息非常繁琐，容易出错。 不仅如此，在这种传统方式下还存在很多问题。比如，很难对后端应用进行限流、熔断等控制；无法快速构建和发布应用等等。 因此，准备尝试使用新一代的部署方案，使用阿里云的ACK版的Kubernetes等技术来改善这些问题。使用容器技术可以让我们轻松地构建、打包和发布应用，并且可以快速地进行扩容和缩容。此外，Kubernetes方案中使用的Service和Ingress等功能可以很好地实现端口和负载均衡的控制，避免了手工维护后端应用IP及端口的问题。
+容器云技术方案规划 在容器云技术方案规划中，最常用的方案是将无状态应用程序部署在集群中，以实现扩展性和高可用性。这里提到的方式是采用阿里云ACK Pro集群，将无状态的Nginx和Java应用部署到集群中。同时使用ingress作为应用程序的入口，并将应用程序所需的数据和文件存储在阿里云OSS上。 阿里云ACK Pro集群是一种高性能、高可扩展性的 Kubernetes 容器服务，允许您快速地通过分步骤向导或CLI 工具创建和管理 Kubernetes 集群。您可以使用集群来托管容器化应用程序，并通过自动化的容器扩展来处理工作负载的变化。 Nginx和Java应用程序是两种最常用的无状态应用程序。Nginx是一款流行的Web服务器和反向代理服务器，常用于负载均衡和反向代理。Java应用程序使用Java编程语言编写，是大多数企业级应用程序的选择。 在阿里云ACK Pro集群中，将应用程序部署为无状态服务，这意味着它们不依赖于特定的服务器或节点。这使得它们可以在集群中的任意节点上运行，并在出现故障时自动平衡负载。入口为ingress提供了一个负载均衡器，可以更好地管理应用流量并将其路由到正确的服务。 将数据和文件存储在阿里云OSS上，可以将数据与应用程序分离，从而降低应用程序的复杂度和可靠性。此外，OSS还提供安全、弹性和可扩展的存储，方便用户管理和扩展数据。
+阿里云K8S选型 集群配置 集群名称：test 集群规格：Pro版 地域：华东2（上海） 付费类型：按量付费 kubernetes版本：1.24.6-aliyun.1 容器运行时：containerd 1.5.13 专有网络：根据需求选择不同环境的VPC 网络插件：Terway，IPvlan和NetworkPolicy支持都选上 虚拟交换机：选2个不同区不同交换机即可 Pod虚拟交换机：选择虚拟交换机一样即可 Service CIDR：使用推荐配置即可 配置SNAT：选中为专有网络配置SNAT APIServer访问：标准型1（slb.s2.small） 安全组：自动创建普通安全组（这样后续可以添加已购服务器为节点） 其它选项默认即可。
+节点池配置 节点池名称：test 实例规格：分类选择最新推荐，然后选择可支持Pod数量多的最好 数量：3个，如果已有服务器，可以为0 操作系统：Alibaba Cloud Linux 2.1903 登陆方式：创建后设置即可 其它设置为默认
+组件配置 Ingress：Nginx Ingress 负载均衡类型：公网 负载均衡规格：标准型I 其它配置默认
+容器镜像服务选型 阿里云提供了企业版和个人版镜像仓库服务。其中，个人版是免费的，可以满足大部分用户的需求，因此我们建议直接使用个人版。
+镜像仓库是一种用于存储和管理Docker镜像的服务。在容器化应用程序中，Docker镜像是构建和部署应用程序的基本组成部分。因此，使用镜像仓库可以帮助我们更好地管理和部署容器化应用程序。
+阿里云的个人版镜像仓库可以免费使用，并提供了基本的镜像管理功能，包括创建、删除、查看和推送Docker镜像等。此外，个人版镜像仓库还提供了一些高级功能，如镜像自动构建和Webhook等。</description>
+    </item>
     
     <item>
       <title>PowerDNS部署</title>
@@ -19,22 +32,22 @@
       
       <guid>http://www.wtlinux.com/powerdns%E9%83%A8%E7%BD%B2/</guid>
       <description>PowerDNS PowerDNS提供两种服务：
- 权威域名服务 转发域名服务  下面进行两种服务的安装部署过程
-PowerDNS Authoritative Server 安装 yum install -y pdns yum install -y pdns-backend-mysql  更多后端支持类型
+权威域名服务 转发域名服务 下面进行两种服务的安装部署过程
+PowerDNS Authoritative Server 安装 yum install -y pdnsyum install -y pdns-backend-mysql 更多后端支持类型
 修改配置 vim /etc/pdns/pdns.conf
-launch=gmysql gmysql-host=10.2.4.118 gmysql-user=pdns gmysql-dbname=pdns gmysql-password=mysecretpassword  初始化数据库 MariaDB [(none)]&amp;gt; create database pdns; MariaDB [(none)]&amp;gt; use pdns MariaDB [pdns]&amp;gt; CREATE USER &#39;pdns&#39;@&#39;localhost&#39; IDENTIFIED BY &#39;mysecretpassword&#39;; MariaDB [pdns]&amp;gt; grant all on pdns.* to pdns@&#39;%&#39; identified by &#39;mysecretpassword&#39;; #创建表 CREATE TABLE domains ( id INT AUTO_INCREMENT, name VARCHAR(255) NOT NULL, master VARCHAR(128) DEFAULT NULL, last_check INT DEFAULT NULL, type VARCHAR(6) NOT NULL, notified_serial INT UNSIGNED DEFAULT NULL, account VARCHAR(40) CHARACTER SET &#39;utf8&#39; DEFAULT NULL, PRIMARY KEY (id) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE UNIQUE INDEX name_index ON domains(name); CREATE TABLE records ( id BIGINT AUTO_INCREMENT, domain_id INT DEFAULT NULL, name VARCHAR(255) DEFAULT NULL, type VARCHAR(10) DEFAULT NULL, content VARCHAR(64000) DEFAULT NULL, ttl INT DEFAULT NULL, prio INT DEFAULT NULL, disabled TINYINT(1) DEFAULT 0, ordername VARCHAR(255) BINARY DEFAULT NULL, auth TINYINT(1) DEFAULT 1, PRIMARY KEY (id) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE INDEX nametype_index ON records(name,type); CREATE INDEX domain_id ON records(domain_id); CREATE INDEX ordername ON records (ordername); CREATE TABLE supermasters ( ip VARCHAR(64) NOT NULL, nameserver VARCHAR(255) NOT NULL, account VARCHAR(40) CHARACTER SET &#39;utf8&#39; NOT NULL, PRIMARY KEY (ip, nameserver) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE TABLE comments ( id INT AUTO_INCREMENT, domain_id INT NOT NULL, name VARCHAR(255) NOT NULL, type VARCHAR(10) NOT NULL, modified_at INT NOT NULL, account VARCHAR(40) CHARACTER SET &#39;utf8&#39; DEFAULT NULL, comment TEXT CHARACTER SET &#39;utf8&#39; NOT NULL, PRIMARY KEY (id) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE INDEX comments_name_type_idx ON comments (name, type); CREATE INDEX comments_order_idx ON comments (domain_id, modified_at); CREATE TABLE domainmetadata ( id INT AUTO_INCREMENT, domain_id INT NOT NULL, kind VARCHAR(32), content TEXT, PRIMARY KEY (id) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE INDEX domainmetadata_idx ON domainmetadata (domain_id, kind); CREATE TABLE cryptokeys ( id INT AUTO_INCREMENT, domain_id INT NOT NULL, flags INT NOT NULL, active BOOL, content TEXT, PRIMARY KEY(id) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE INDEX domainidindex ON cryptokeys(domain_id); CREATE TABLE tsigkeys ( id INT AUTO_INCREMENT, name VARCHAR(255), algorithm VARCHAR(50), secret VARCHAR(255), PRIMARY KEY (id) ) Engine=InnoDB CHARACTER SET &#39;latin1&#39;; CREATE UNIQUE INDEX namealgoindex ON tsigkeys(name, algorithm); #插入一些测试数据 INSERT INTO domains (name, type) values (&#39;example.</description>
+launch=gmysqlgmysql-host=10.2.4.118gmysql-user=pdnsgmysql-dbname=pdnsgmysql-password=mysecretpassword 初始化数据库 MariaDB [(none)]&amp;gt; create database pdns;MariaDB [(none)]&amp;gt; use pdnsMariaDB [pdns]&amp;gt; CREATE USER &amp;#39;pdns&amp;#39;@&amp;#39;localhost&amp;#39; IDENTIFIED BY &amp;#39;mysecretpassword&amp;#39;;MariaDB [pdns]&amp;gt; grant all on pdns.* to pdns@&amp;#39;%&amp;#39; identified by &amp;#39;mysecretpassword&amp;#39;;#创建表CREATE TABLE domains (id INT AUTO_INCREMENT,name VARCHAR(255) NOT NULL,master VARCHAR(128) DEFAULT NULL,last_check INT DEFAULT NULL,type VARCHAR(6) NOT NULL,notified_serial INT UNSIGNED DEFAULT NULL,account VARCHAR(40) CHARACTER SET &amp;#39;utf8&amp;#39; DEFAULT NULL,PRIMARY KEY (id)) Engine=InnoDB CHARACTER SET &amp;#39;latin1&amp;#39;;CREATE UNIQUE INDEX name_index ON domains(name);CREATE TABLE records (id BIGINT AUTO_INCREMENT,domain_id INT DEFAULT NULL,name VARCHAR(255) DEFAULT NULL,type VARCHAR(10) DEFAULT NULL,content VARCHAR(64000) DEFAULT NULL,ttl INT DEFAULT NULL,prio INT DEFAULT NULL,disabled TINYINT(1) DEFAULT 0,ordername VARCHAR(255) BINARY DEFAULT NULL,auth TINYINT(1) DEFAULT 1,PRIMARY KEY (id)) Engine=InnoDB CHARACTER SET &amp;#39;latin1&amp;#39;;CREATE INDEX nametype_index ON records(name,type);CREATE INDEX domain_id ON records(domain_id);CREATE INDEX ordername ON records (ordername);CREATE TABLE supermasters (ip VARCHAR(64) NOT NULL,nameserver VARCHAR(255) NOT NULL,account VARCHAR(40) CHARACTER SET &amp;#39;utf8&amp;#39; NOT NULL,PRIMARY KEY (ip, nameserver)) Engine=InnoDB CHARACTER SET &amp;#39;latin1&amp;#39;;CREATE TABLE comments (id INT AUTO_INCREMENT,domain_id INT NOT NULL,name VARCHAR(255) NOT NULL,type VARCHAR(10) NOT NULL,modified_at INT NOT NULL,account VARCHAR(40) CHARACTER SET &amp;#39;utf8&amp;#39; DEFAULT NULL,comment TEXT CHARACTER SET &amp;#39;utf8&amp;#39; NOT NULL,PRIMARY KEY (id)) Engine=InnoDB CHARACTER SET &amp;#39;latin1&amp;#39;;CREATE INDEX comments_name_type_idx ON comments (name, type);CREATE INDEX comments_order_idx ON comments (domain_id, modified_at);CREATE TABLE domainmetadata (id INT AUTO_INCREMENT,domain_id INT NOT NULL,kind VARCHAR(32),content TEXT,PRIMARY KEY (id)) Engine=InnoDB CHARACTER SET &amp;#39;latin1&amp;#39;;CREATE INDEX domainmetadata_idx ON domainmetadata (domain_id, kind);CREATE TABLE cryptokeys (id INT AUTO_INCREMENT,domain_id INT NOT NULL,flags INT NOT NULL,active BOOL,content TEXT,PRIMARY KEY(id)) Engine=InnoDB CHARACTER SET &amp;#39;latin1&amp;#39;;CREATE INDEX domainidindex ON cryptokeys(domain_id);CREATE TABLE tsigkeys (id INT AUTO_INCREMENT,name VARCHAR(255),algorithm VARCHAR(50),secret VARCHAR(255),PRIMARY KEY (id)) Engine=InnoDB CHARACTER SET &amp;#39;latin1&amp;#39;;CREATE UNIQUE INDEX namealgoindex ON tsigkeys(name, algorithm);#插入一些测试数据INSERT INTO domains (name, type) values (&amp;#39;example.</description>
     </item>
     
     <item>
       <title>Ceph快速入门</title>
       <link>http://www.wtlinux.com/ceph%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/</link>
-      <pubDate>Thu, 23 Aug 2018 14:00:56 +0800</pubDate>
+      <pubDate>Sun, 22 Jul 2018 00:11:56 +0800</pubDate>
       
       <guid>http://www.wtlinux.com/ceph%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/</guid>
-      <description>安装ceph-deploy 预安装 Ceph-deploy设置  ceph-deploy工具在管理节点上的目录之外运行。任何具有网络连接和现代python环境和ssh（如Linux）的主机都应该可以工作  架构图如下：
+      <description>安装ceph-deploy 预安装 Ceph-deploy设置 ceph-deploy工具在管理节点上的目录之外运行。任何具有网络连接和现代python环境和ssh（如Linux）的主机都应该可以工作 架构图如下：
 CentOS7：
-//注册秘钥 sudo subscription-manager repos --enable=rhel-7-server-extras-rpms //安装并注册EPEL存储库 sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm // 来添加yum仓库文件 cat &amp;lt;&amp;lt; EOM &amp;gt; /etc/yum.repos.d/ceph.repo [ceph-noarch] name=Ceph noarch packages baseurl=https://download.ceph.com/rpm-{ceph-stable-release}/el7/noarch enabled=1 gpgcheck=1 type=rpm-md gpgkey=https://download.ceph.com/keys/release.asc EOM //更新仓库并安装ceph-deploy sudo yum update sudo yum install ceph-deploy  Ceph节点设置  管理节点必须具有对Ceph节点的无密码SSH访问。当ceph-deploy以用户身份登录到Ceph节点时，该特定用户必须具有无密码的sudo权限。  CentOS7：
-安装时间服务器  建议安装时间服务器，特别是Ceph Monitor节点，以免时间不一致导致问题  sudo yum install ntp ntpdate ntp-doc  安装SSH服务器  确保SSH服务器在所有Ceph节点上运行  sudo yum install openssh-server  创建Ceph部署用户  ceph-deploy实用程序必须以具有无密码sudo权限的用户身份登录到Ceph节点，因为它需要安装软件和配置文件而不提示输入密码。 最新版本的ceph-deploy支持&amp;ndash;username选项，因此您可以指定任何具有无密码sudo的用户（包括root用户，但不建议这样做）。 我们建议在群集中的所有Ceph节点上为ceph-deploy创建特定用户。 请不要使用“ceph”作为用户名。  //在每个Ceph节点上创建一个新用户。 ssh user@ceph-server sudo useradd -d /home/{username} -m {username} sudo passwd {username} //对于添加到每个Ceph节点的新用户，请确保该用户具有sudo权限。 echo &amp;quot;{username} ALL = (root) NOPASSWD:ALL&amp;quot; | sudo tee /etc/sudoers.</description>
+//注册秘钥sudo subscription-manager repos --enable=rhel-7-server-extras-rpms //安装并注册EPEL存储库sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm // 来添加yum仓库文件cat &amp;lt;&amp;lt; EOM &amp;gt; /etc/yum.repos.d/ceph.repo[ceph-noarch]name=Ceph noarch packagesbaseurl=https://download.ceph.com/rpm-{ceph-stable-release}/el7/noarchenabled=1gpgcheck=1type=rpm-mdgpgkey=https://download.ceph.com/keys/release.ascEOM//更新仓库并安装ceph-deploysudo yum updatesudo yum install ceph-deploy Ceph节点设置 管理节点必须具有对Ceph节点的无密码SSH访问。当ceph-deploy以用户身份登录到Ceph节点时，该特定用户必须具有无密码的sudo权限。 CentOS7：
+安装时间服务器 建议安装时间服务器，特别是Ceph Monitor节点，以免时间不一致导致问题 1 sudo yum install ntp ntpdate ntp-doc 安装SSH服务器 确保SSH服务器在所有Ceph节点上运行 1 sudo yum install openssh-server 创建Ceph部署用户 ceph-deploy实用程序必须以具有无密码sudo权限的用户身份登录到Ceph节点，因为它需要安装软件和配置文件而不提示输入密码。 最新版本的ceph-deploy支持&amp;ndash;username选项，因此您可以指定任何具有无密码sudo的用户（包括root用户，但不建议这样做）。 我们建议在群集中的所有Ceph节点上为ceph-deploy创建特定用户。 请不要使用“ceph”作为用户名。 1 2 3 4 5 6 7 8 //在每个Ceph节点上创建一个新用户。 ssh user@ceph-server sudo useradd -d /home/{username} -m {username} sudo passwd {username} //对于添加到每个Ceph节点的新用户，请确保该用户具有sudo权限。 echo &amp;#34;{username} ALL = (root) NOPASSWD:ALL&amp;#34; | sudo tee /etc/sudoers.</description>
     </item>
     
     <item>
@@ -43,19 +56,25 @@ CentOS7：
       <pubDate>Sun, 22 Jul 2018 00:11:56 +0800</pubDate>
       
       <guid>http://www.wtlinux.com/hugo%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E6%95%99%E7%A8%8B/</guid>
-      <description>一直有想整理自己博客的想法，但是由于各种原因一再搁置，第一是通过写文章让自己的技术得以沉淀，第二也可以进行交流，互相成长。第三也可以向大家展示自己的写作风格以及中间贯穿的一些思想。
-组件介绍  hugo 主要生成博客的工具。
- github 需要用github来托管网站。
- markdown你需要知道的markdown语法。
- 域名别人访问你网站的网址。
- ipic图床神器，可以上传一些图片。
-   注册好自己的域名和github之后，就可以构建自己的网站啦。
- hugo 简介 hugo是使用go语言编写的，有几百种主题可供选择，也可以与自己个性化设置等相结合。官网上说hugo是世界上最快的网站构建框架，也是最受欢迎的开源静态站点生成器之一。凭借其惊人的速度和灵活性，hugo使网站构建变得更加有趣。
+      <description>一直有想整理自己博客的想法，但是由于各种原因一再搁置，第一是通过写文章让自己的技术得以沉淀，第二也可以进行交流，互相成长。第三也可以向大家展示自己的写作风格以及中间贯穿的一些思想。组件介绍 hugo 主要生成博客的工具。
+github 需要用github来托管网站。
+markdown你需要知道的markdown语法。
+域名别人访问你网站的网址。
+ipic图床神器，可以上传一些图片。
+注册好自己的域名和github之后，就可以构建自己的网站啦。
+hugo 简介 hugo是使用go语言编写的，有几百种主题可供选择，也可以与自己个性化设置等相结合。官网上说hugo是世界上最快的网站构建框架，也是最受欢迎的开源静态站点生成器之一。凭借其惊人的速度和灵活性，hugo使网站构建变得更加有趣。
 安装 Mac版安装
-brew install hugo  查看是否安装成功
- $ hugo version Hugo Static Site Generator v0.41 darwin/amd64  使用 首先构建自己的网站，wtlinux.com是我注册的域名
- $ hugo new site wtlinux.com  查看目录结构
- $ tree wtlinux.com/ wtlinux.com/ ├── archetypes │ └── default.md ├── config.toml ├── content ├── data ├── layouts ├── static └── themes  archetypes构建新文章是默认的配置</description>
+1 2 brew install hugo 查看是否安装成功
+$ hugo versionHugo Static Site Generator v0.41 darwin/amd64 使用 首先构建自己的网站，wtlinux.com是我注册的域名
+$ hugo new site wtlinux.com 查看目录结构
+$ tree wtlinux.com/wtlinux.com/├── archetypes│ └── default.md├── config.toml├── content├── data├── layouts├── static└── themes archetypes构建新文章是默认的配置
+config.toml网站的主要配置文件
+content博客文章的目录
+layouts网站如何展示的一些前端的东西
+static存放网站图片等静态内容
+themes存放网站主题的地方
+然后进入到hugo主题选择,选择自己喜欢的主题进行clone。
+cd wtlinux.comgit clone https://github.</description>
     </item>
     
     <item>

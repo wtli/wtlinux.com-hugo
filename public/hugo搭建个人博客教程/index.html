@@ -1,54 +1,70 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en-us">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <title>Hugo搭建个人博客教程 - wtlinux</title>
   <meta property="og:title" content="Hugo搭建个人博客教程 - wtlinux" />
   <meta name="twitter:title" content="Hugo搭建个人博客教程 - wtlinux" />
-  <meta name="description" content="一直有想整理自己博客的想法，但是由于各种原因一再搁置，第一是通过写文章让自己的技术得以沉淀，第二也可以进行交流，互相成长。第三也可以向大家展示自己的写作风格以及中间贯穿的一些思想。
-组件介绍  hugo 主要生成博客的工具。
- github 需要用github来托管网站。
- markdown你需要知道的markdown语法。
- 域名别人访问你网站的网址。
- ipic图床神器，可以上传一些图片。
-   注册好自己的域名和github之后，就可以构建自己的网站啦。
- hugo 简介 hugo是使用go语言编写的，有几百种主题可供选择，也可以与自己个性化设置等相结合。官网上说hugo是世界上最快的网站构建框架，也是最受欢迎的开源静态站点生成器之一。凭借其惊人的速度和灵活性，hugo使网站构建变得更加有趣。
+  <meta name="description" content="一直有想整理自己博客的想法，但是由于各种原因一再搁置，第一是通过写文章让自己的技术得以沉淀，第二也可以进行交流，互相成长。第三也可以向大家展示自己的写作风格以及中间贯穿的一些思想。组件介绍 hugo 主要生成博客的工具。
+github 需要用github来托管网站。
+markdown你需要知道的markdown语法。
+域名别人访问你网站的网址。
+ipic图床神器，可以上传一些图片。
+注册好自己的域名和github之后，就可以构建自己的网站啦。
+hugo 简介 hugo是使用go语言编写的，有几百种主题可供选择，也可以与自己个性化设置等相结合。官网上说hugo是世界上最快的网站构建框架，也是最受欢迎的开源静态站点生成器之一。凭借其惊人的速度和灵活性，hugo使网站构建变得更加有趣。
 安装 Mac版安装
-brew install hugo  查看是否安装成功
- $ hugo version Hugo Static Site Generator v0.41 darwin/amd64  使用 首先构建自己的网站，wtlinux.com是我注册的域名
- $ hugo new site wtlinux.com  查看目录结构
- $ tree wtlinux.com/ wtlinux.com/ ├── archetypes │ └── default.md ├── config.toml ├── content ├── data ├── layouts ├── static └── themes  archetypes构建新文章是默认的配置">
-  <meta property="og:description" content="一直有想整理自己博客的想法，但是由于各种原因一再搁置，第一是通过写文章让自己的技术得以沉淀，第二也可以进行交流，互相成长。第三也可以向大家展示自己的写作风格以及中间贯穿的一些思想。
-组件介绍  hugo 主要生成博客的工具。
- github 需要用github来托管网站。
- markdown你需要知道的markdown语法。
- 域名别人访问你网站的网址。
- ipic图床神器，可以上传一些图片。
-   注册好自己的域名和github之后，就可以构建自己的网站啦。
- hugo 简介 hugo是使用go语言编写的，有几百种主题可供选择，也可以与自己个性化设置等相结合。官网上说hugo是世界上最快的网站构建框架，也是最受欢迎的开源静态站点生成器之一。凭借其惊人的速度和灵活性，hugo使网站构建变得更加有趣。
+1 2 brew install hugo 查看是否安装成功
+$ hugo versionHugo Static Site Generator v0.41 darwin/amd64 使用 首先构建自己的网站，wtlinux.com是我注册的域名
+$ hugo new site wtlinux.com 查看目录结构
+$ tree wtlinux.com/wtlinux.com/├── archetypes│ └── default.md├── config.toml├── content├── data├── layouts├── static└── themes archetypes构建新文章是默认的配置
+config.toml网站的主要配置文件
+content博客文章的目录
+layouts网站如何展示的一些前端的东西
+static存放网站图片等静态内容
+themes存放网站主题的地方
+然后进入到hugo主题选择,选择自己喜欢的主题进行clone。
+cd wtlinux.comgit clone https://github.">
+  <meta property="og:description" content="一直有想整理自己博客的想法，但是由于各种原因一再搁置，第一是通过写文章让自己的技术得以沉淀，第二也可以进行交流，互相成长。第三也可以向大家展示自己的写作风格以及中间贯穿的一些思想。组件介绍 hugo 主要生成博客的工具。
+github 需要用github来托管网站。
+markdown你需要知道的markdown语法。
+域名别人访问你网站的网址。
+ipic图床神器，可以上传一些图片。
+注册好自己的域名和github之后，就可以构建自己的网站啦。
+hugo 简介 hugo是使用go语言编写的，有几百种主题可供选择，也可以与自己个性化设置等相结合。官网上说hugo是世界上最快的网站构建框架，也是最受欢迎的开源静态站点生成器之一。凭借其惊人的速度和灵活性，hugo使网站构建变得更加有趣。
 安装 Mac版安装
-brew install hugo  查看是否安装成功
- $ hugo version Hugo Static Site Generator v0.41 darwin/amd64  使用 首先构建自己的网站，wtlinux.com是我注册的域名
- $ hugo new site wtlinux.com  查看目录结构
- $ tree wtlinux.com/ wtlinux.com/ ├── archetypes │ └── default.md ├── config.toml ├── content ├── data ├── layouts ├── static └── themes  archetypes构建新文章是默认的配置">
-  <meta name="twitter:description" content="一直有想整理自己博客的想法，但是由于各种原因一再搁置，第一是通过写文章让自己的技术得以沉淀，第二也可以进行交流，互相成长。第三也可以向大家展示自己的写作风格以及中间贯穿的一些思想。
-组件介绍  hugo 主要生成博客的工具。
- github 需要用github来托管网站。
- markdown你需要知道的markdown语法。
- 域名别人访问你网站的网址。
- ipic图床神器，可以上传一些图片。 …">
+1 2 brew install hugo 查看是否安装成功
+$ hugo versionHugo Static Site Generator v0.41 darwin/amd64 使用 首先构建自己的网站，wtlinux.com是我注册的域名
+$ hugo new site wtlinux.com 查看目录结构
+$ tree wtlinux.com/wtlinux.com/├── archetypes│ └── default.md├── config.toml├── content├── data├── layouts├── static└── themes archetypes构建新文章是默认的配置
+config.toml网站的主要配置文件
+content博客文章的目录
+layouts网站如何展示的一些前端的东西
+static存放网站图片等静态内容
+themes存放网站主题的地方
+然后进入到hugo主题选择,选择自己喜欢的主题进行clone。
+cd wtlinux.comgit clone https://github.">
+  <meta name="twitter:description" content="一直有想整理自己博客的想法，但是由于各种原因一再搁置，第一是通过写文章让自己的技术得以沉淀，第二也可以进行交流，互相成长。第三也可以向大家展示自己的写作风格以及中间贯穿的一些思想。组件介绍 hugo 主要生成博客的工具。
+github 需要用github来托管网站。
+markdown你需要知道的markdown语法。
+域名别人访问你网站的网址。
+ipic图床神器，可以上传一些图片。
+注册好自己的 …">
   <meta name="author" content="wang tian"/>
   <meta property="og:site_name" content="wtlinux" />
   <meta property="og:url" content="http://www.wtlinux.com/hugo%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E6%95%99%E7%A8%8B/" />
   <meta property="og:type" content="article" />
   <meta name="twitter:card" content="summary" />
-  <meta name="generator" content="Hugo 0.41" />
+  <meta name="generator" content="Hugo 0.111.3">
   <link rel="stylesheet" href="/css/style.css" media="all" />
+  <link rel="stylesheet" href="/css/style-dark.css" media="all and (prefers-color-scheme: dark)" />
+
   <link rel="stylesheet" href="/css/syntax.css" media="all" />
   <link rel="stylesheet" href="/css/custom.css" media="all" />
-  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-  <script defer src="https://use.fontawesome.com/releases/v5.0.10/js/all.js" integrity="sha384-slN8GvtUJGnv6ca26v8EzVaR9DC58QEwsIk9q1QXdCU8Yu8ck/tL/5szYlBbqmS+" crossorigin="anonymous"></script>
+
+  <script src="/js/script.js"></script>
+  <script src="/js/custom.js"></script>
+  <script defer src="/js/fontawesome.js"></script>
 </head>
 
 <body>
@@ -66,11 +82,6 @@ brew install hugo  查看是否安装成功
 </header>
 <hr class="site-header-bottom">
 
-<script src="https://yandex.st/highlightjs/8.0/highlight.min.js"></script>
-<link rel="stylesheet" href="https://yandex.st/highlightjs/8.0/styles/default.min.css">
-<script>hljs.initHighlightingOnLoad();</script>
-
-
   <div class="main" role="main">
     <article class="article">
       
@@ -84,80 +95,62 @@ brew install hugo  查看是否安装成功
       
 <aside class="toc">
   <nav id="TableOfContents">
-<ul>
-<li><a href="#组件介绍">组件介绍</a></li>
-<li><a href="#hugo">hugo</a>
-<ul>
-<li><a href="#简介">简介</a></li>
-<li><a href="#安装">安装</a></li>
-<li><a href="#使用">使用</a></li>
-</ul></li>
-<li><a href="#评论功能">评论功能</a></li>
-<li><a href="#代码高亮">代码高亮</a></li>
-<li><a href="#用github-pages来作为网站的host">用Github Pages来作为网站的host</a></li>
-<li><a href="#域名绑定">域名绑定</a></li>
-<li><a href="#参考文章">参考文章</a></li>
-</ul>
+  <ul>
+    <li><a href="#简介">简介</a></li>
+    <li><a href="#安装">安装</a></li>
+    <li><a href="#使用">使用</a></li>
+  </ul>
 </nav>
 </aside>
-      
-
-<p>一直有想整理自己博客的想法，但是由于各种原因一再搁置，第一是通过写文章让自己的技术得以沉淀，第二也可以进行交流，互相成长。第三也可以向大家展示自己的写作风格以及中间贯穿的一些思想。</p>
-
-<h1 id="组件介绍">组件介绍</h1>
-
-<ul>
-<li><p><a href="http://gohugo.io/">hugo</a> 主要生成博客的工具。</p></li>
-
-<li><p><a href="https://github.com">github</a> 需要用github来托管网站。</p></li>
-
-<li><p><a href="https://www.markdowntutorial.com/">markdown</a>你需要知道的markdown语法。</p></li>
-
-<li><p><a href="https://wanwang.aliyun.com/domain/">域名</a>别人访问你网站的网址。</p></li>
-
-<li><p><a href="https://toolinbox.net/iPic/">ipic</a>图床神器，可以上传一些图片。</p></li>
-</ul>
-
-<blockquote>
-<p><font color=red>注册好自己的域名和github之后，就可以构建自己的网站啦。</font></p>
-</blockquote>
-
-<h1 id="hugo">hugo</h1>
-
-<h2 id="简介">简介</h2>
-
-<p>hugo是使用go语言编写的，有几百种主题可供选择，也可以与自己个性化设置等相结合。官网上说hugo是世界上最快的网站构建框架，也是最受欢迎的开源静态站点生成器之一。凭借其惊人的速度和灵活性，hugo使网站构建变得更加有趣。</p>
-
-<h2 id="安装">安装</h2>
-
-<p>Mac版安装</p>
-
-<pre><code class="language-shell">
-brew install hugo
-
+      <pre><code>一直有想整理自己博客的想法，但是由于各种原因一再搁置，第一是通过写文章让自己的技术得以沉淀，第二也可以进行交流，互相成长。第三也可以向大家展示自己的写作风格以及中间贯穿的一些思想。
 </code></pre>
-
-<p>查看是否安装成功</p>
-
-<pre><code>
+<h1 id="组件介绍">组件介绍</h1>
+<ul>
+<li>
+<p><a href="http://gohugo.io/">hugo</a> 主要生成博客的工具。</p>
+</li>
+<li>
+<p><a href="https://github.com">github</a> 需要用github来托管网站。</p>
+</li>
+<li>
+<p><a href="https://www.markdowntutorial.com/">markdown</a>你需要知道的markdown语法。</p>
+</li>
+<li>
+<p><a href="https://wanwang.aliyun.com/domain/">域名</a>别人访问你网站的网址。</p>
+</li>
+<li>
+<p><a href="https://toolinbox.net/iPic/">ipic</a>图床神器，可以上传一些图片。</p>
+</li>
+</ul>
+<blockquote>
+<p><!-- raw HTML omitted -->注册好自己的域名和github之后，就可以构建自己的网站啦。<!-- raw HTML omitted --></p>
+</blockquote>
+<h1 id="hugo">hugo</h1>
+<h2 id="简介">简介</h2>
+<p>hugo是使用go语言编写的，有几百种主题可供选择，也可以与自己个性化设置等相结合。官网上说hugo是世界上最快的网站构建框架，也是最受欢迎的开源静态站点生成器之一。凭借其惊人的速度和灵活性，hugo使网站构建变得更加有趣。</p>
+<h2 id="安装">安装</h2>
+<p>Mac版安装</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">brew install hugo
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看是否安装成功</p>
+<pre tabindex="0"><code>
 $ hugo version
 
 Hugo Static Site Generator v0.41 darwin/amd64
-
-</code></pre>
-
-<h2 id="使用">使用</h2>
-
+</code></pre><h2 id="使用">使用</h2>
 <p>首先构建自己的网站，wtlinux.com是我注册的域名</p>
-
-<pre><code>
+<pre tabindex="0"><code>
 $ hugo new site wtlinux.com
-
-</code></pre>
-
-<p>查看目录结构</p>
-
-<pre><code>
+</code></pre><p>查看目录结构</p>
+<pre tabindex="0"><code>
 $ tree wtlinux.com/
 
 wtlinux.com/
@@ -177,47 +170,28 @@ wtlinux.com/
 ├── static
 
 └── themes
-
-</code></pre>
-
-<p><code>archetypes</code>构建新文章是默认的配置</p>
-
+</code></pre><p><code>archetypes</code>构建新文章是默认的配置</p>
 <p><code>config.toml</code>网站的主要配置文件</p>
-
 <p><code>content</code>博客文章的目录</p>
-
 <p><code>layouts</code>网站如何展示的一些前端的东西</p>
-
 <p><code>static</code>存放网站图片等静态内容</p>
-
 <p><code>themes</code>存放网站主题的地方</p>
-
 <p>然后进入到<a href="https://themes.gohugo.io/">hugo主题选择</a>,选择自己喜欢的主题进行clone。</p>
-
-<pre><code>
+<pre tabindex="0"><code>
 cd  wtlinux.com
 
 git clone https://github.com/taikii/whiteplain.git themes/whiteplain
-
-</code></pre>
-
-<p>这时候whiteplain的主题就在themes的目录中了。</p>
-
+</code></pre><p>这时候whiteplain的主题就在themes的目录中了。</p>
 <p>现在我们来创建一个页面：</p>
-
-<pre><code>
+<pre tabindex="0"><code>
 hugo new about.md
-
-</code></pre>
-
-<p>然后查看content里面多了一个about.md文件</p>
-
-<pre><code>
+</code></pre><p>然后查看content里面多了一个about.md文件</p>
+<pre tabindex="0"><code>
 $ cat content/about.md
 
 ---
 
-title: &quot;About&quot;
+title: &#34;About&#34;
 
 date: 2018-07-21T15:27:10+08:00
 
@@ -228,235 +202,155 @@ draft: true
 # 关于我
 
 2018 ❤️
-
-</code></pre>
-
-<blockquote>
-<p><font color=red>注意</font>当<code>draft: true</code>的时候，视为草稿，<code>hugo server -D</code>会显示，正式发布效果用<code>hugo server -w</code>查看。</p>
+</code></pre><blockquote>
+<p><!-- raw HTML omitted -->注意<!-- raw HTML omitted -->当<code>draft: true</code>的时候，视为草稿，<code>hugo server -D</code>会显示，正式发布效果用<code>hugo server -w</code>查看。</p>
 </blockquote>
-
 <p>在里面加入了一些内容，然后运行</p>
-
-<pre><code>
+<pre tabindex="0"><code>
 hugo server -t whiteplain --buildDrafts
-
-</code></pre>
-
-<p><code>-t</code>指定whiteplain主题</p>
-
+</code></pre><p><code>-t</code>指定whiteplain主题</p>
 <p><code>--buildDrafts</code>使用草稿的方式运行</p>
-
-<p>浏览器进行访问：<a href="http://localhost:1313/">http://localhost:1313/</a></p>
-
-<p><img src="https://ws3.sinaimg.cn/large/006tNc79gy1fthir76ckpj30s20cuq3o.jpg" alt="" /></p>
-
+<p>浏览器进行访问：http://localhost:1313/</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79gy1fthir76ckpj30s20cuq3o.jpg" alt=""></p>
 <p>把主题中的layouts和static替换到自己网站下面</p>
-
-<pre><code>
+<pre tabindex="0"><code>
 $ cp -R themes/whiteplain/layouts/ ./wtlinux.com/layouts
 
 $ cp -R themes/whiteplain/static/ ./wtlinux.com/static
-
-</code></pre>
-
-<h1 id="评论功能">评论功能</h1>
-
+</code></pre><h1 id="评论功能">评论功能</h1>
 <p>hugo默认支持<a href="https://disqus.com/">Disqus</a>的评论，需要去disqus进行注册create a new site</p>
-
-<p><img src="https://ws3.sinaimg.cn/large/006tNc79gy1fthk6gs7ynj30ii0j5jsq.jpg" alt="" /></p>
-
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79gy1fthk6gs7ynj30ii0j5jsq.jpg" alt=""></p>
 <p>然后选择基本的套餐</p>
-
-<p><img src="https://ws2.sinaimg.cn/large/006tNc79gy1fthkaicbt2j30750fkq3s.jpg" alt="" /></p>
-
+<p><img src="https://ws2.sinaimg.cn/large/006tNc79gy1fthkaicbt2j30750fkq3s.jpg" alt=""></p>
 <p>然后选择将要使用的地方</p>
-
-<p><img src="https://ws2.sinaimg.cn/large/006tNc79gy1fthkbisgyoj30u308egms.jpg" alt="" /></p>
-
+<p><img src="https://ws2.sinaimg.cn/large/006tNc79gy1fthkbisgyoj30u308egms.jpg" alt=""></p>
 <p>然后填写自己blog的网址</p>
-
-<p><img src="https://ws4.sinaimg.cn/large/006tNc79gy1fthkcou8xyj30t10loack.jpg" alt="" /></p>
-
+<p><img src="https://ws4.sinaimg.cn/large/006tNc79gy1fthkcou8xyj30t10loack.jpg" alt=""></p>
 <p>然后在config.toml中添加如下代码：</p>
-
-<pre><code>
-disqusShortname = &quot;yourdisqusShortname&quot;
-
-</code></pre>
-
-<blockquote>
+<pre tabindex="0"><code>
+disqusShortname = &#34;yourdisqusShortname&#34;
+</code></pre><blockquote>
 <p>例如：disqusShortname = &ldquo;wtlinux&rdquo;</p>
 </blockquote>
-
 <p>还需要在模板中添加如下代码：</p>
-
-<pre><code>
+<pre tabindex="0"><code>
 $ cat layouts/partials/disqus.html
 
-&lt;div id=&quot;disqus_thread&quot;&gt;&lt;/div&gt;
+&lt;div id=&#34;disqus_thread&#34;&gt;&lt;/div&gt;
 
-&lt;script type=&quot;text/javascript&quot;&gt;
+&lt;script type=&#34;text/javascript&#34;&gt;
 
 
 
 (function() {
 
-    // Don't ever inject Disqus on localhost--it creates unwanted
+    // Don&#39;t ever inject Disqus on localhost--it creates unwanted
 
-    // discussions from 'localhost:1313' on your Disqus account...
+    // discussions from &#39;localhost:1313&#39; on your Disqus account...
 
-    if (window.location.hostname == &quot;localhost&quot;)
+    if (window.location.hostname == &#34;localhost&#34;)
 
         return;
 
 
 
-    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var dsq = document.createElement(&#39;script&#39;); dsq.type = &#39;text/javascript&#39;; dsq.async = true;
 
-    var disqus_shortname = '{{ .Site.DisqusShortname }}';
+    var disqus_shortname = &#39;{{ .Site.DisqusShortname }}&#39;;
 
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    dsq.src = &#39;//&#39; + disqus_shortname + &#39;.disqus.com/embed.js&#39;;
 
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    (document.getElementsByTagName(&#39;head&#39;)[0] || document.getElementsByTagName(&#39;body&#39;)[0]).appendChild(dsq);
 
 })();
 
 &lt;/script&gt;
 
-&lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&quot;http://disqus.com/?ref_noscript&quot;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
+&lt;noscript&gt;Please enable JavaScript to view the &lt;a href=&#34;http://disqus.com/?ref_noscript&#34;&gt;comments powered by Disqus.&lt;/a&gt;&lt;/noscript&gt;
 
-&lt;a href=&quot;http://disqus.com/&quot; class=&quot;dsq-brlink&quot;&gt;comments powered by &lt;span class=&quot;logo-disqus&quot;&gt;Disqus&lt;/span&gt;&lt;/a&gt;
+&lt;a href=&#34;http://disqus.com/&#34; class=&#34;dsq-brlink&#34;&gt;comments powered by &lt;span class=&#34;logo-disqus&#34;&gt;Disqus&lt;/span&gt;&lt;/a&gt;
 
-{{ template &quot;_internal/disqus.html&quot; . }}
-
-</code></pre>
-
-<p>在<code>{{ partial &quot;footer.html&quot; . }}</code>下面添加<code>{{ partial &quot;disqus.html&quot; . }}</code></p>
-
-<pre><code>
+{{ template &#34;_internal/disqus.html&#34; . }}
+</code></pre><p>在<code>{{ partial &quot;footer.html&quot; . }}</code>下面添加<code>{{ partial &quot;disqus.html&quot; . }}</code></p>
+<pre tabindex="0"><code>
 &lt;!DOCTYPE html&gt;
 
-&lt;html lang=&quot;{{ .Site.LanguageCode }}&quot;&gt;
+&lt;html lang=&#34;{{ .Site.LanguageCode }}&#34;&gt;
 
-{{ partial &quot;head.html&quot; . }}
+{{ partial &#34;head.html&#34; . }}
 
 &lt;body&gt;
 
-{{ partial &quot;header.html&quot; . }}
+{{ partial &#34;header.html&#34; . }}
 
-{{ block &quot;main&quot; . }}{{ end }}
+{{ block &#34;main&#34; . }}{{ end }}
 
-{{ partial &quot;footer.html&quot; . }}
+{{ partial &#34;footer.html&#34; . }}
 
-{{ partial &quot;disqus.html&quot; . }}
+{{ partial &#34;disqus.html&#34; . }}
 
 &lt;/body&gt;
 
 &lt;/html&gt;
-
-
-
-</code></pre>
-
-<p>再次运行，就可以看到评论的功能相关的啦</p>
-
-<pre><code>
+</code></pre><p>再次运行，就可以看到评论的功能相关的啦</p>
+<pre tabindex="0"><code>
  hugo server -t whiteplain --buildDrafts
-
-</code></pre>
-
-<p><img src="https://ws2.sinaimg.cn/large/006tNc79gy1fthkh8a8szj30j609yt9k.jpg" alt="" /></p>
-
+</code></pre><p><img src="https://ws2.sinaimg.cn/large/006tNc79gy1fthkh8a8szj30j609yt9k.jpg" alt=""></p>
 <h1 id="代码高亮">代码高亮</h1>
-
 <p>在layouts/partials/header.html加入如下代码：</p>
+<pre tabindex="0"><code>
+&lt;script src=&#34;https://yandex.st/highlightjs/8.0/highlight.min.js&#34;&gt;&lt;/script&gt;
 
-<pre><code>
-&lt;script src=&quot;https://yandex.st/highlightjs/8.0/highlight.min.js&quot;&gt;&lt;/script&gt;
-
-&lt;link rel=&quot;stylesheet&quot; href=&quot;https://yandex.st/highlightjs/8.0/styles/default.min.css&quot;&gt;
+&lt;link rel=&#34;stylesheet&#34; href=&#34;https://yandex.st/highlightjs/8.0/styles/default.min.css&#34;&gt;
 
 &lt;script&gt;hljs.initHighlightingOnLoad();&lt;/script&gt;
-
-</code></pre>
-
-<h1 id="用github-pages来作为网站的host">用Github Pages来作为网站的host</h1>
-
+</code></pre><h1 id="用github-pages来作为网站的host">用Github Pages来作为网站的host</h1>
 <p>先创建一个project</p>
-
-<p><img src="https://ws4.sinaimg.cn/large/006tNc79gy1fthlbzsisfj30k30h3mze.jpg" alt="" /></p>
-
+<p><img src="https://ws4.sinaimg.cn/large/006tNc79gy1fthlbzsisfj30k30h3mze.jpg" alt=""></p>
 <p>然后将wtlinux.com目录上传上去</p>
-
-<pre><code>
+<pre tabindex="0"><code>
 cd wtlinux.com
 
 git init
 git add .
-git commit -m &quot;first commit&quot;
+git commit -m &#34;first commit&#34;
 git remote add origin git@github.com:wtli/wtlinux.com-hugo.git
 git push -u origin master
-</code></pre>
-
-<p>然后接下来步骤如下：</p>
-
+</code></pre><p>然后接下来步骤如下：</p>
 <p>1、在github上创建repo，托管hugo的输出文件。</p>
-
-<p>2、创建repo<username>.github.io,用于托管public文件夹，注意这里repo名字一定要用自己的用户名，才会被当做是个人主页。</p>
-
+<p>2、创建repo<!-- raw HTML omitted -->.github.io,用于托管public文件夹，注意这里repo名字一定要用自己的用户名，才会被当做是个人主页。</p>
 <p>3、clone your project</p>
-
-<pre><code>
+<pre tabindex="0"><code>
 $ git clone wtli.github.io
-
-</code></pre>
-
-<p>4、进入project目录</p>
-
-<pre><code>
+</code></pre><p>4、进入project目录</p>
+<pre tabindex="0"><code>
 $ cd wtli.github.io
-
-</code></pre>
-
-<p>6、删掉public目录</p>
-
-<pre><code>
+</code></pre><p>6、删掉public目录</p>
+<pre tabindex="0"><code>
 $ rm -rf public
-
-</code></pre>
-
-<p>7、把public目录添加为submodule与.github.io同步</p>
-
-<pre><code>
+</code></pre><p>7、把public目录添加为submodule与.github.io同步</p>
+<pre tabindex="0"><code>
 $ cd wtlinux.com/
 
 $ git submodule add git@github.com:&lt;username&gt;/&lt;username&gt;.github.io.git public
-
-</code></pre>
-
-<p>8、添加.gitignore文件，里面写public/，在同步&lt;your-project&gt;-hugo时会忽略publice文件夹。</p>
-
-<pre><code>
+</code></pre><p>8、添加.gitignore文件，里面写public/，在同步&lt;your-project&gt;-hugo时会忽略publice文件夹。</p>
+<pre tabindex="0"><code>
 $ cat .gitignore
 
 public/
-
-</code></pre>
-
-<p>10、有一个写好的scripts脚本，直接拷贝就能用，记得chmod +x depoly.sh加上运行权限</p>
-
-<pre><code>
+</code></pre><p>10、有一个写好的scripts脚本，直接拷贝就能用，记得chmod +x depoly.sh加上运行权限</p>
+<pre tabindex="0"><code>
 $ cat deploy.sh
 
 #!/bin/bash
 
-echo -e &quot;\033[0;32mDeploying updates to GitHub...\033[0m&quot;
+echo -e &#34;\033[0;32mDeploying updates to GitHub...\033[0m&#34;
 
-msg=&quot;rebuilding site `date`&quot;
+msg=&#34;rebuilding site `date`&#34;
 
 if [ $# -eq 1 ]
 
-  then msg=&quot;$1&quot;
+  then msg=&#34;$1&#34;
 
 fi
 
@@ -464,7 +358,7 @@ fi
 
 git add -A
 
-git commit -m &quot;$msg&quot;
+git commit -m &#34;$msg&#34;
 
 git push origin master
 
@@ -482,7 +376,7 @@ git add -A
 
 # Commit changes.
 
-git commit -m &quot;$msg&quot;
+git commit -m &#34;$msg&#34;
 
 # Push source and build repos.
 
@@ -491,61 +385,29 @@ git push origin master
 # Come Back
 
 cd ..
-
-</code></pre>
-
-<p>等一会儿，就可以在<a href="http://username.github.io/">http://username.github.io/</a> 这个页面上看到你的网站了，每次更新，只需要运行着脚本就行。</p>
-
+</code></pre><p>等一会儿，就可以在http://username.github.io/ 这个页面上看到你的网站了，每次更新，只需要运行着脚本就行。</p>
 <h1 id="域名绑定">域名绑定</h1>
-
 <p>步骤如下：</p>
-
 <p>1、在wtli.github.io的project中setting，在下面可以改成www.wtlinux.com</p>
-
 <p>2、在域名配置中，添加cname，然后把地址指向wtli.github.io</p>
-
 <h1 id="参考文章">参考文章</h1>
-
 <ul>
-<li><p>宋净超的个人网站：<a href="https://jimmysong.io/posts/building-github-pages-with-hugo/">jimmysong.io</a></p></li>
-
-<li><p>一个妹子的博客：<a href="http://nanshu.wang/">nanshu wang</a></p></li>
+<li>
+<p>宋净超的个人网站：<a href="https://jimmysong.io/posts/building-github-pages-with-hugo/">jimmysong.io</a></p>
+</li>
+<li>
+<p>一个妹子的博客：<a href="http://nanshu.wang/">nanshu wang</a></p>
+</li>
 </ul>
 
     </article>
 
     
-<ul class="article-share">
-  <li>
-    <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-  </li>
-  <li>
-    <div class="fb-share-button" data-href="http://www.wtlinux.com/hugo%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E6%95%99%E7%A8%8B/" data-layout="button_count" data-action="like" data-size="small" data-show-faces="true" data-share="true"></div>
-    <div id="fb-root"></div>
-    <script>(function(d, s, id) {
-      var js, fjs = d.getElementsByTagName(s)[0];
-      if (d.getElementById(id)) return;
-      js = d.createElement(s); js.id = id;
-      js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.10";
-      fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));</script>
-  </li>
-  <li>
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
-    <g:plus action="share"></g:plus>
-  </li>
-  <li>
-    <a href="http://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="en" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
-  </li>
-  <li>
-    <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-    <script>!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-  </li>
-</ul>
+
     <div class="disqus-comments">
       <div id="disqus_thread"></div>
-<script>
-    var disqus_config = function () {
+<script type="application/javascript">
+    window.disqus_config = function () {
     
     
     
@@ -566,14 +428,18 @@ cd ..
     </div>
 
     <ul class="pager article-pager">
-      <li class="pager-newer pager-noitem">&lt; Newer</li>
-      <li class="pager-older pager-noitem">Older &gt;</li>
+      <li class="pager-newer">
+          <a href="/ceph%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/" data-toggle="tooltip" data-placement="top" title="Ceph快速入门">&lt; Newer</a>
+      </li>
+      <li class="pager-older">
+        <a href="/about/" data-toggle="tooltip" data-placement="top" title="About">Older &gt;</a>
+      </li>
     </ul>
   </div>
 
 
 <div class="site-footer">
-  <div class="copyright">&copy; Copyright 2018 wtlinux</div>
+  <div class="copyright">&copy; Copyright 2016 wtlinux</div>
   <ul class="site-footer-items">
     <li class="site-footer-item-about"><a href="/about/" title="About">About</a></li>
   </ul>
@@ -581,10 +447,8 @@ cd ..
     Powered by <a href="https://gohugo.io/">Hugo</a> and <a href="https://github.com/taikii/whiteplain">Whiteplain</a>
   </div>
 </div>
-<script src="/js/script.js"></script>
-<script src="/js/custom.js"></script>
 
-<script>
+<script type="application/javascript">
 var doNotTrack = false;
 if (!doNotTrack) {
 	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -596,58 +460,6 @@ if (!doNotTrack) {
 	ga('send', 'pageview');
 }
 </script>
-
-
-<script>
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-122643141-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='//www.google-analytics.com/analytics.js'></script>
-
-
-
-<div id="disqus_thread"></div>
-<script type="text/javascript">
-
-(function() {
-    
-    
-    if (window.location.hostname == "localhost")
-        return;
-
-    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-    var disqus_shortname = 'wtlinux';
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-})();
-</script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-<div id="disqus_thread"></div>
-<script>
-    var disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "wtlinux" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
 </body>
 </html>

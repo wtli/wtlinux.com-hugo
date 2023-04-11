@@ -1,15 +1,21 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on wtlinux</title>
     <link>http://www.wtlinux.com/tags/</link>
     <description>Recent content in Tags on wtlinux</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>zh</language>
-    <copyright>&amp;copy; Copyright 2018 wtlinux</copyright>
-    
-	<atom:link href="http://www.wtlinux.com/tags/index.xml" rel="self" type="application/rss+xml" />
-    
+    <language>en-us</language>
+    <copyright>&amp;copy; Copyright 2016 wtlinux</copyright>
+    <lastBuildDate>Sun, 22 Jul 2018 00:11:56 +0800</lastBuildDate><atom:link href="http://www.wtlinux.com/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>ceph</title>
+      <link>http://www.wtlinux.com/tags/ceph/</link>
+      <pubDate>Sun, 22 Jul 2018 00:11:56 +0800</pubDate>
+      
+      <guid>http://www.wtlinux.com/tags/ceph/</guid>
+      <description></description>
+    </item>
     
   </channel>
 </rss>
