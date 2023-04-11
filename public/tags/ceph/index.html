@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <title>ceph - wtlinux</title>
+  <meta property="og:title" content="ceph - wtlinux" />
+  <meta name="twitter:title" content="ceph - wtlinux" />
+  <meta name="author" content="wang tian"/>
+  <meta property="og:site_name" content="wtlinux" />
+  <meta property="og:url" content="http://www.wtlinux.com/tags/ceph/" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="generator" content="Hugo 0.111.3">
+  <link href="/tags/ceph/index.xml" rel="alternate" type="application/rss+xml" title="wtlinux" />
+  <link href="/tags/ceph/index.xml" rel="feed" type="application/rss+xml" title="wtlinux" />
+  <link rel="stylesheet" href="/css/style.css" media="all" />
+  <link rel="stylesheet" href="/css/style-dark.css" media="all and (prefers-color-scheme: dark)" />
+
+  <link rel="stylesheet" href="/css/syntax.css" media="all" />
+  <link rel="stylesheet" href="/css/custom.css" media="all" />
+
+  <script src="/js/script.js"></script>
+  <script src="/js/custom.js"></script>
+  <script defer src="/js/fontawesome.js"></script>
+</head>
+
+<body>
+
+<header class="site-header">
+  <nav class="site-navi">
+    <h1 class="site-title"><a href="/">wtlinux</a></h1>
+    <ul class="site-navi-items">
+      <li class="site-navi-item-categories"><a href="/categories/" title="Categories">Categories</a></li>
+      <li class="site-navi-item-tags"><a href="/tags/" title="Tags">Tags</a></li>
+      <li class="site-navi-item-archives"><a href="/archives/" title="Archives">Archives</a></li>
+      <li class="site-navi-item-about"><a href="/about/" title="About">About</a></li>
+    </ul>
+  </nav>
+</header>
+<hr class="site-header-bottom">
+
+  <div class="main" role="main">
+    <section class="list term-list">
+      <article class="article">
+        <a href="/ceph%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/" class="article-titles">
+          <h2 class="article-title">Ceph快速入门</h2>
+          
+        </a>
+        <ul class="article-meta">
+          <li class="article-meta-date"><time>July 22, 2018</time></li>
+          <li class="article-meta-categories">
+            <a href="/categories/ops/">
+              <i class="fas fa-folder"></i>
+              ops
+            </a>&nbsp;
+          </li>
+          <li class="article-meta-tags">
+            <a href="/tags/ceph/">
+              <i class="fas fa-tag"></i>
+              ceph
+            </a>&nbsp;
+          </li>
+        </ul>
+        <div class="article-content">
+          安装ceph-deploy 预安装 Ceph-deploy设置 ceph-deploy工具在管理节点上的目录之外运行。任何具有网络连接和现代python环境和ssh（如Linux）的主机都应该可以工作 架构图如下：
+CentOS7：
+//注册秘钥sudo subscription-manager repos --enable=rhel-7-server-extras-rpms //安装并注册EPEL存储库sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm // 来添加yum仓库文件cat &lt;&lt; EOM &gt; /etc/yum.repos.d/ceph.repo[ceph-noarch]name=Ceph noarch packagesbaseurl=https://download.ceph.com/rpm-{ceph-stable-release}/el7/noarchenabled=1gpgcheck=1type=rpm-mdgpgkey=https://download.ceph.com/keys/release.ascEOM//更新仓库并安装ceph-deploysudo yum updatesudo yum install ceph-deploy Ceph节点设置 管理节点必须具有对Ceph节点的无密码SSH访问。当ceph-deploy以用户身份登录到Ceph节点时，该特定用户必须具有无密码的sudo权限。 CentOS7：
+安装时间服务器 建议安装时间服务器，特别是Ceph Monitor节点，以免时间不一致导致问题 1 sudo yum install ntp ntpdate ntp-doc 安装SSH服务器 确保SSH服务器在所有Ceph节点上运行 1 sudo yum install openssh-server 创建Ceph部署用户 ceph-deploy实用程序必须以具有无密码sudo权限的用户身份登录到Ceph节点，因为它需要安装软件和配置文件而不提示输入密码。 最新版本的ceph-deploy支持&ndash;username选项，因此您可以指定任何具有无密码sudo的用户（包括root用户，但不建议这样做）。 我们建议在群集中的所有Ceph节点上为ceph-deploy创建特定用户。 请不要使用“ceph”作为用户名。 1 2 3 4 5 6 7 8 //在每个Ceph节点上创建一个新用户。 ssh user@ceph-server sudo useradd -d /home/{username} -m {username} sudo passwd {username} //对于添加到每个Ceph节点的新用户，请确保该用户具有sudo权限。 echo &#34;{username} ALL = (root) NOPASSWD:ALL&#34; | sudo tee /etc/sudoers.
+        </div>
+        <div class="article-readmore"><a href="/ceph%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/">Read more...</a></div>
+        <div class="article-floatclear"></div>
+      </article>
+    </section>
+    
+  </div>
+
+
+
+<div class="site-footer">
+  <div class="copyright">&copy; Copyright 2016 wtlinux</div>
+  <ul class="site-footer-items">
+    <li class="site-footer-item-rsslink">
+      <a href="/tags/ceph/index.xml" type="application/rss+xml" target="_blank" title="RSS">
+        <i class="fas fa-rss"></i>
+      </a>
+    </li>
+    <li class="site-footer-item-about"><a href="/about/" title="About">About</a></li>
+  </ul>
+  <div class="powerdby">
+    Powered by <a href="https://gohugo.io/">Hugo</a> and <a href="https://github.com/taikii/whiteplain">Whiteplain</a>
+  </div>
+</div>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-122643141-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+
+</body>
+</html>
