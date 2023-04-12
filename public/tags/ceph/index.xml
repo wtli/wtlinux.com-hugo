@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ceph on wtlinux</title>
+    <link>http://www.wtlinux.com/tags/ceph/</link>
+    <description>Recent content in ceph on wtlinux</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; Copyright 2016 wtlinux</copyright>
+    <lastBuildDate>Sun, 22 Jul 2018 00:11:56 +0800</lastBuildDate><atom:link href="http://www.wtlinux.com/tags/ceph/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Ceph快速入门</title>
+      <link>http://www.wtlinux.com/ceph%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/</link>
+      <pubDate>Sun, 22 Jul 2018 00:11:56 +0800</pubDate>
+      
+      <guid>http://www.wtlinux.com/ceph%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/</guid>
+      <description>安装ceph-deploy 预安装 Ceph-deploy设置 ceph-deploy工具在管理节点上的目录之外运行。任何具有网络连接和现代python环境和ssh（如Linux）的主机都应该可以工作 架构图如下：
+CentOS7：
+//注册秘钥sudo subscription-manager repos --enable=rhel-7-server-extras-rpms //安装并注册EPEL存储库sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm // 来添加yum仓库文件cat &amp;lt;&amp;lt; EOM &amp;gt; /etc/yum.repos.d/ceph.repo[ceph-noarch]name=Ceph noarch packagesbaseurl=https://download.ceph.com/rpm-{ceph-stable-release}/el7/noarchenabled=1gpgcheck=1type=rpm-mdgpgkey=https://download.ceph.com/keys/release.ascEOM//更新仓库并安装ceph-deploysudo yum updatesudo yum install ceph-deploy Ceph节点设置 管理节点必须具有对Ceph节点的无密码SSH访问。当ceph-deploy以用户身份登录到Ceph节点时，该特定用户必须具有无密码的sudo权限。 CentOS7：
+安装时间服务器 建议安装时间服务器，特别是Ceph Monitor节点，以免时间不一致导致问题 1 sudo yum install ntp ntpdate ntp-doc 安装SSH服务器 确保SSH服务器在所有Ceph节点上运行 1 sudo yum install openssh-server 创建Ceph部署用户 ceph-deploy实用程序必须以具有无密码sudo权限的用户身份登录到Ceph节点，因为它需要安装软件和配置文件而不提示输入密码。 最新版本的ceph-deploy支持&amp;ndash;username选项，因此您可以指定任何具有无密码sudo的用户（包括root用户，但不建议这样做）。 我们建议在群集中的所有Ceph节点上为ceph-deploy创建特定用户。 请不要使用“ceph”作为用户名。 1 2 3 4 5 6 7 8 //在每个Ceph节点上创建一个新用户。 ssh user@ceph-server sudo useradd -d /home/{username} -m {username} sudo passwd {username} //对于添加到每个Ceph节点的新用户，请确保该用户具有sudo权限。 echo &amp;#34;{username} ALL = (root) NOPASSWD:ALL&amp;#34; | sudo tee /etc/sudoers.</description>
+    </item>
+    
+  </channel>
+</rss>
