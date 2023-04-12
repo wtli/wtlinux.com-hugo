@@ -373,6 +373,7 @@ blockquote blockquote blockquote blockquote {
   margin-right: 8px;
 }
 .list .article-content {
+  height: 100px;
 }
 .list .article-readmore {
 }
